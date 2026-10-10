@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SICP Labs</title>
+<title>SICP Notes and Labs</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,650&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap">
 <style>
 :root { --bg: #F2F4F1; --surface: #FFFFFF; --ink: #1A2230; --muted: #5B6573; --line: #D8DDD6; --accent: #1E58B8; }
@@ -17,15 +17,20 @@ a.lab { display: grid; gap: 4px; padding: 14px 16px; background: var(--surface);
 a.lab:hover, a.lab:focus-visible { border-color: var(--accent); }
 .wk { font: 12px "IBM Plex Mono", monospace; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
 .t { font-weight: 500; color: var(--accent); }
+li.card { display: grid; gap: 4px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+li.card .links { display: flex; gap: 16px; flex-wrap: wrap; }
+li.card a { color: var(--accent); font-weight: 500; }
+h2 { font: 650 20px/1.3 "Literata", Georgia, serif; margin: 8px 0 0; }
 </style>
 </head>
 <body>
 <main>
-  <h1>SICP Labs</h1>
-  <p>Interactive pages for working through <em>Structure and Interpretation of Computer Programs</em>, one per week. Each has a Scheme stepper and checked exercises. Answers are saved in your browser.</p>
+  <h1>SICP Notes and Labs</h1><h2>Chapter 1: Building Abstractions with Procedures</h2>
+  <p>Notes and interactive pages for working through <em>Structure and Interpretation of Computer Programs</em>, one section at a time. The notes collect the key points; the labs have a Scheme stepper and checked exercises, with answers saved in your browser.</p>
   <ol>
-    <li><a class="lab" href="labs/sicp-1-1-lab.html"><span class="wk">Week 1 · Section 1.1</span><span class="t">SICP 1.1 Lab</span><span>Substitution-model stepper, applicative vs normal order, exercises 1.1–1.6</span></a></li>
-    <li><a class="lab" href="labs/sicp-1-2-lab.html"><span class="wk">Week 2 · Sections 1.2.1–1.2.3</span><span class="t">SICP 1.2 Lab</span><span>Process shapes, orders of growth, exercises 1.9–1.15</span></a></li>
+    <li class="card"><span class="wk">1.1 · Week 1</span><span><strong>The Elements of Programming</strong></span><span>Expressions, naming, the substitution model, cond and if, Newton's square root, black-box abstraction</span><span class="links"><a href="notes/1.1.html">Notes</a><a href="labs/sicp-1-1-lab.html">Lab: exercises 1.1–1.6</a></span></li>
+    <li class="card"><span class="wk">1.2 · Weeks 2–3</span><span><strong>Procedures and the Processes They Generate</strong></span><span>Recursive vs iterative processes, tree recursion, orders of growth, exponentiation, GCD, primality</span><span class="links"><a href="notes/1.2.html">Notes</a><a href="labs/sicp-1-2-lab.html">Lab: exercises 1.9–1.15</a></span></li>
+    <li class="card"><span class="wk">1.3 · Weeks 4–5</span><span><strong>Higher-Order Procedures</strong></span><span>Procedures as arguments, lambda and let, fixed points, procedures as returned values</span><span class="links"><a href="notes/1.3.html">Notes</a><span style="color:var(--muted)">Lab coming</span></span></li>
   </ol>
 </main>
 </body>
