@@ -1,0 +1,1161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>SICP 1.2 Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; the stepper is a lab bench (controls over a numbered trace), exercises below as worksheet cards. */
+:root {
+  --bg: #F2F4F1; --surface: #FFFFFF; --sunk: #F7F8F5; --ink: #1A2230; --muted: #5B6573; --line: #D8DDD6;
+  --accent: #1E58B8; --accent-ink: #FFFFFF; --accent-soft: #E3ECFA;
+  --mark: #FFE27A; --mark-ink: #1A2230;
+  --good: #1D7A4B; --good-soft: #E1F2E8; --bad: #B3261E; --bad-soft: #FBE7E5;
+  --p0: #1E58B8; --p1: #9440B3; --p2: #1D7A4B; --p3: #B0621B;
+  --f-display: "Literata", Georgia, "Times New Roman", serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-code: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11151B; --surface: #181D25; --sunk: #141920; --ink: #E5E8ED; --muted: #98A2B1; --line: #2A313C;
+  --accent: #74A6FF; --accent-ink: #0B1324; --accent-soft: #1C2A44;
+  --mark: #5B4A10; --mark-ink: #FFF2C4;
+  --good: #5FCB92; --good-soft: #15291F; --bad: #FF8E80; --bad-soft: #33191A;
+  --p0: #74A6FF; --p1: #CD98E8; --p2: #5FCB92; --p3: #E8A86A; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #11151B; --surface: #181D25; --sunk: #141920; --ink: #E5E8ED; --muted: #98A2B1; --line: #2A313C;
+  --accent: #74A6FF; --accent-ink: #0B1324; --accent-soft: #1C2A44;
+  --mark: #5B4A10; --mark-ink: #FFF2C4;
+  --good: #5FCB92; --good-soft: #15291F; --bad: #FF8E80; --bad-soft: #33191A;
+  --p0: #74A6FF; --p1: #CD98E8; --p2: #5FCB92; --p3: #E8A86A; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-body); }
+.wrap { max-width: 860px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 64px; display: grid; gap: 40px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 650; text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: clamp(30px, 6vw, 42px); letter-spacing: -0.01em; }
+h2 { font-size: 24px; }
+h3 { font-size: 18px; }
+p { margin: 0; max-width: 66ch; }
+code, pre, .code { font-family: var(--f-code); font-size: 14px; }
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.muted { color: var(--muted); }
+a { color: var(--accent); }
+
+header { display: grid; gap: 12px; }
+.lede { color: var(--muted); font-size: 16px; }
+.progress { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; }
+.pip { font: 500 12px var(--f-code); padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); background: var(--surface); text-decoration: none; }
+.pip.done { background: var(--good-soft); border-color: transparent; color: var(--good); }
+.progress .count { font-size: 13px; color: var(--muted); margin-left: 4px; }
+
+section { display: grid; gap: 16px; }
+.sec-head { display: grid; gap: 6px; }
+
+.bench { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 13px var(--f-code); padding: 5px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--sunk); color: var(--ink); cursor: pointer; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+textarea, input[type="text"] { font: 14px/1.45 var(--f-code); color: var(--ink); background: var(--sunk); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; width: 100%; min-width: 0; resize: vertical; }
+textarea:focus, input:focus, button:focus-visible, .chip:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.expr-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: start; }
+@media (max-width: 520px) { .expr-row { grid-template-columns: 1fr; } }
+button { font: 500 14px var(--f-body); border-radius: 6px; padding: 7px 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: 0.45; cursor: default; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; background: var(--surface); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.blurb { font-size: 14px; background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; }
+.blurb:empty { display: none; }
+
+.trace { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; max-height: 560px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--sunk); }
+.trace li { display: grid; grid-template-columns: 2.6em 1fr; gap: 10px; padding: 10px 12px; border-top: 1px solid var(--line); }
+.trace li:first-child { border-top: 0; }
+.trace .n { font: 12px var(--f-code); color: var(--muted); text-align: right; padding-top: 2px; font-variant-numeric: tabular-nums; }
+.trace .body { min-width: 0; display: grid; gap: 5px; }
+.trace pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
+.note { font-size: 13.5px; color: var(--muted); display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.tag { font: 500 11px var(--f-code); text-transform: uppercase; letter-spacing: 0.06em; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+.tag.apply { color: var(--p1); } .tag.prim { color: var(--p2); } .tag.if, .tag.cond, .tag.logic { color: var(--p3); } .tag.lookup { color: var(--p0); }
+.note.final { color: var(--good); font-weight: 500; }
+.note.err { color: var(--bad); font-weight: 500; }
+.note.loop { color: var(--bad); }
+.trace li.latest { background: var(--surface); }
+mark.redex { background: var(--mark); color: var(--mark-ink); border-radius: 3px; padding: 1px 0; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.d0 { color: var(--p0); } .d1 { color: var(--p1); } .d2 { color: var(--p2); } .d3 { color: var(--p3); }
+.kw { font-weight: 600; } .numv { color: var(--ink); } .boolv { color: var(--p3); font-weight: 500; }
+.stats { font: 12.5px var(--f-code); color: var(--muted); font-variant-numeric: tabular-nums; }
+details.defs summary { cursor: pointer; font-weight: 500; font-size: 14px; }
+details.defs[open] summary { margin-bottom: 8px; }
+.defs-err { color: var(--bad); font-size: 13px; }
+.kbd { font: 11px var(--f-code); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+
+.ex { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 16px; display: grid; gap: 14px; scroll-margin-top: 16px; }
+.ex-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.state { font: 500 12px var(--f-code); padding: 2px 8px; border-radius: 999px; background: var(--sunk); color: var(--muted); }
+.state.done { background: var(--good-soft); color: var(--good); }
+.qtable { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.qrow { display: grid; grid-template-columns: minmax(0, 1fr) 9rem 1.6rem; gap: 10px; align-items: center; padding: 7px 10px; border-top: 1px solid var(--line); background: var(--surface); }
+.qrow:first-child { border-top: 0; }
+.qrow.def { background: var(--sunk); }
+.qrow .code { overflow-wrap: anywhere; min-width: 0; }
+.qrow input { padding: 5px 8px; }
+.qrow .mark { text-align: center; font-weight: 600; }
+.qrow .reveal { grid-column: 1 / -1; font-size: 13px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+@media (max-width: 520px) { .qrow { grid-template-columns: minmax(0, 1fr) 6.5rem 1.4rem; } }
+.ok { color: var(--good); } .no { color: var(--bad); }
+.linkbtn { border: 0; background: none; padding: 0; color: var(--accent); font: 500 13px var(--f-body); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.feedback { font-size: 14px; border-radius: 8px; padding: 10px 12px; }
+.feedback:empty { display: none; }
+.feedback.ok { background: var(--good-soft); color: var(--ink); }
+.feedback.no { background: var(--bad-soft); color: var(--ink); }
+.mcq { display: grid; gap: 8px; }
+.mcq .opts { display: grid; gap: 6px; }
+.opt { text-align: left; font-weight: 400; display: flex; gap: 10px; align-items: baseline; }
+.opt .letter { font: 500 12px var(--f-code); color: var(--muted); }
+.opt.right { border-color: var(--good); background: var(--good-soft); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.why { font-size: 14px; color: var(--muted); }
+.why:empty { display: none; }
+.results { font: 13px var(--f-code); display: grid; gap: 2px; }
+pre.listing { margin: 0; background: var(--sunk); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
+.resetbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; }
+footer { color: var(--muted); font-size: 13.5px; display: grid; gap: 8px; }
+@media (prefers-reduced-motion: no-preference) { .trace li.latest { animation: fade .25s ease-out; } @keyframes fade { from { background: var(--accent-soft); } } }
+/* ---- 1.2 additions ---- */
+.lab-links { font-size: 13px; color: var(--muted); }
+.shape { border: 1px solid var(--line); border-radius: 8px; background: var(--sunk); padding: 10px 12px 6px; display: grid; gap: 4px; }
+.shape-head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+.shape svg { width: 100%; height: 72px; display: block; }
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.chart { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; display: grid; gap: 6px; position: relative; min-width: 0; }
+.chart h4 { margin: 0; font: 600 14px var(--f-body); }
+.chart .sub { font-size: 12.5px; color: var(--muted); }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart text { font: 10.5px var(--f-code); fill: var(--muted); }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font: 12px var(--f-code); padding: 4px 8px; border-radius: 5px; white-space: nowrap; transform: translate(-50%, -120%); }
+.verdict { font-size: 14px; background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+table.data { border-collapse: collapse; width: 100%; font: 13px var(--f-code); font-variant-numeric: tabular-nums; }
+table.data th, table.data td { padding: 5px 10px; text-align: right; border-top: 1px solid var(--line); }
+table.data th { font: 600 12px var(--f-body); color: var(--muted); border-top: 0; background: var(--sunk); }
+.cctree { font: 13px var(--f-code); max-height: 420px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--sunk); }
+.cctree details { padding-left: 14px; border-left: 1px dashed var(--line); margin-left: 4px; }
+.cctree > details { border-left: 0; padding-left: 0; margin-left: 0; }
+.cctree summary { cursor: pointer; padding: 1px 0; }
+.cctree .leaf { padding: 1px 0 1px 18px; margin-left: 4px; border-left: 1px dashed var(--line); }
+.leaf.one { color: var(--good); font-weight: 500; } .leaf.zero { color: var(--muted); }
+.inline-inputs { display: grid; gap: 8px; }
+.inline-inputs .row label { min-width: 0; }
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">SICP · Week 2 · Sections 1.2.1 to 1.2.3</div>
+  <h1>SICP 1.2 Lab</h1>
+  <p class="lede">See the shape of a process: watch recursive processes grow and shrink while iterative ones stay flat, measure how fast procedures grow, then check yourself on exercises 1.9 to 1.15. Your answers are saved in this browser.</p>
+  <nav class="progress" id="progress" aria-label="Exercise progress"></nav>
+  <p class="lab-links">Previous: <a href="sicp-1-1-lab.html">SICP 1.1 Lab</a></p>
+</header>
+
+<section id="stepper">
+  <div class="sec-head">
+    <h2>Process shapes</h2>
+    <p class="muted">The book view shows the expression only before each procedure call and each pending operation, like the traces in 1.2.1. The shaded strip under the trace plots how many operations are waiting at every step: recursive processes make a triangle, iterative ones a flat line.</p>
+  </div>
+  <div class="bench">
+    <div class="chips" id="examples"></div>
+    <div class="expr-row">
+      <input type="text" id="expr" spellcheck="false" autocomplete="off" aria-label="Expression to evaluate" value="(factorial 6)">
+      <button class="primary" id="load">Start</button>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Trace detail">
+        <button id="view-book" aria-pressed="true">Book view</button>
+        <button id="view-all" aria-pressed="false">Every step</button>
+      </div>
+      <div class="row">
+        <button id="back">Back</button>
+        <button id="step" class="primary">Step</button>
+        <button id="run">Run to end</button>
+      </div>
+    </div>
+    <div class="blurb" id="blurb"></div>
+    <ol class="trace" id="trace" aria-live="polite"></ol>
+    <div class="shape">
+      <div class="shape-head"><span>Pending operations at each step</span><span id="shape-stat"></span></div>
+      <svg id="shape-svg" viewBox="0 0 600 72" preserveAspectRatio="none" role="img" aria-label="Pending operations per step"></svg>
+    </div>
+    <div class="stats" id="stats"></div>
+    <details class="defs">
+      <summary>Definitions in scope</summary>
+      <div style="display:grid;gap:8px">
+        <textarea id="defs" rows="16" spellcheck="false" aria-label="Definitions"></textarea>
+        <div class="row"><button id="apply-defs">Use these definitions</button><button id="reset-defs">Restore the defaults</button><span class="defs-err" id="defs-err"></span></div>
+        <p class="muted" style="font-size:13px">Built in: + - * / = &lt; &gt; &lt;= &gt;= min max remainder quotient even? odd? zero? not inc dec, plus if, cond, and, or.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<section id="growth">
+  <div class="sec-head">
+    <h2>Orders of growth</h2>
+    <p class="muted">Run a procedure for a range of inputs and count the work. Calls is the number of procedure applications (time). Space is the peak number of pending operations in the substitution trace.</p>
+  </div>
+  <div class="bench">
+    <div class="chips" id="g-procs"></div>
+    <div class="charts">
+      <div class="chart" id="chart-calls"><h4>Procedure calls</h4><div class="sub">time, by input n</div><svg></svg><div class="tip" hidden></div></div>
+      <div class="chart" id="chart-space"><h4>Peak space</h4><div class="sub">pending operations, by input n</div><svg></svg><div class="tip" hidden></div></div>
+    </div>
+    <div class="verdict" id="g-verdict"></div>
+    <details>
+      <summary style="cursor:pointer;font-weight:500;font-size:14px">Table of values</summary>
+      <div class="tablewrap" style="margin-top:8px"><table class="data" id="g-table"></table></div>
+    </details>
+  </div>
+</section>
+
+<section id="exercises">
+  <div class="sec-head">
+    <h2>Exercises 1.9 to 1.15</h2>
+    <p class="muted">Answer first, then step through or measure to see why. 1.13 is a proof, so it's optional.</p>
+  </div>
+  <div id="ex-list" style="display:grid;gap:16px"></div>
+</section>
+
+<footer>
+  <div class="resetbar"><button id="reset-progress">Clear my answers</button><span id="reset-confirm" hidden>This clears every saved answer. <button id="reset-yes">Clear them</button> <button id="reset-no">Keep them</button></span></div>
+  <p>Space here is measured with the substitution model: the number of operations still waiting in the expression. That is exactly the "deferred operations" chain the book draws in 1.2.1.</p>
+</footer>
+</div>
+
+<script>
+// ---- Scheme subset for SICP 1.1: parser, numbers, substitution-model stepper ----
+const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) { [a, b] = [b, a % b]; } return a; };
+function N(n, d = 1) {
+  if (d === 0) throw new Error('Division by zero.');
+  if (d < 0) { n = -n; d = -d; }
+  const g = gcd(n, d) || 1; n /= g; d /= g;
+  if (!Number.isSafeInteger(n) || !Number.isSafeInteger(d)) return F(n / d);
+  return { t: 'num', ex: true, n, d };
+}
+const F = v => ({ t: 'num', ex: false, v });
+const B = v => ({ t: 'bool', v });
+const S = v => ({ t: 'sym', v });
+const L = items => ({ t: 'list', items });
+const V = { t: 'void' };
+
+const fv = a => a.ex ? a.n / a.d : a.v;
+const add = (a, b) => a.ex && b.ex ? N(a.n * b.d + b.n * a.d, a.d * b.d) : F(fv(a) + fv(b));
+const sub = (a, b) => a.ex && b.ex ? N(a.n * b.d - b.n * a.d, a.d * b.d) : F(fv(a) - fv(b));
+const mul = (a, b) => a.ex && b.ex ? N(a.n * b.n, a.d * b.d) : F(fv(a) * fv(b));
+const div = (a, b) => {
+  if (fv(b) === 0) throw new Error('Division by zero.');
+  return a.ex && b.ex ? N(a.n * b.d, a.d * b.n) : F(fv(a) / fv(b));
+};
+const cmp = (a, b) => a.ex && b.ex ? Math.sign(a.n * b.d - b.n * a.d) : Math.sign(fv(a) - fv(b));
+const isInt = a => a.ex && a.d === 1;
+
+function fmtNum(a) {
+  if (a.ex) return a.d === 1 ? String(a.n) : a.n + '/' + a.d;
+  if (!isFinite(a.v)) return a.v > 0 ? '+inf.0' : a.v < 0 ? '-inf.0' : '+nan.0';
+  const s = String(a.v);
+  return /[.e]/.test(s) ? s : s + '.0';
+}
+function show(n) {
+  switch (n.t) {
+    case 'num': return fmtNum(n);
+    case 'bool': return n.v ? '#t' : '#f';
+    case 'sym': return n.v;
+    case 'void': return '#<void>';
+    case 'list': return '(' + n.items.map(show).join(' ') + ')';
+  }
+}
+const isFalse = v => v.t === 'bool' && !v.v;
+
+// ---- parser ----
+function tokenize(src) {
+  const toks = []; let i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (c === ';') { while (i < src.length && src[i] !== '\n') i++; continue; }
+    if (/\s/.test(c)) { i++; continue; }
+    if ('()[]'.includes(c)) { toks.push(c === '[' ? '(' : c === ']' ? ')' : c); i++; continue; }
+    if (c === "'" || c === '`') throw new Error("Quote (') arrives in chapter 2, so it isn't supported here.");
+    if (c === '"') throw new Error('Strings aren\'t needed in section 1.1, so they aren\'t supported here.');
+    let j = i; while (j < src.length && !/[\s()[\];"']/.test(src[j])) j++;
+    toks.push(src.slice(i, j)); i = j;
+  }
+  return toks;
+}
+function atom(s) {
+  if (/^[+-]?\d+$/.test(s)) return N(parseInt(s, 10));
+  let m = s.match(/^([+-]?\d+)\/(\d+)$/); if (m) return N(parseInt(m[1], 10), parseInt(m[2], 10));
+  if (/^[+-]?(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?$/.test(s)) return F(parseFloat(s));
+  if (s === '#t' || s === 'true' || s === '#true') return B(true);
+  if (s === '#f' || s === 'false' || s === '#false') return B(false);
+  return S(s);
+}
+function parseAll(src) {
+  const toks = tokenize(src); let pos = 0;
+  function one() {
+    const t = toks[pos++];
+    if (t === undefined) throw new Error('Missing a closing parenthesis.');
+    if (t === ')') throw new Error('There is an extra closing parenthesis.');
+    if (t !== '(') return atom(t);
+    const items = [];
+    while (toks[pos] !== ')') { if (pos >= toks.length) throw new Error('Missing a closing parenthesis.'); items.push(one()); }
+    pos++;
+    return L(items);
+  }
+  const out = []; while (pos < toks.length) out.push(one());
+  return out;
+}
+function parseOne(src) {
+  const all = parseAll(src);
+  if (all.length === 0) throw new Error('Type an expression first.');
+  if (all.length > 1) throw new Error('That is more than one expression. Put definitions in the Definitions box.');
+  return all[0];
+}
+
+// ---- primitives ----
+function needNums(name, args) {
+  for (const a of args) if (a.t !== 'num') throw new Error(`${name} expects numbers, but was given ${show(a)}.`);
+}
+function needInts(name, args) {
+  for (const a of args) if (!isInt(a)) throw new Error(`${name} expects integers, but was given ${show(a)}.`);
+}
+const chain = test => (args) => { for (let i = 0; i + 1 < args.length; i++) if (!test(cmp(args[i], args[i + 1]))) return B(false); return B(true); };
+const PRIMS = {
+  '+': { num: true, fn: a => a.reduce(add, N(0)) },
+  '-': { num: true, min: 1, fn: a => a.length === 1 ? sub(N(0), a[0]) : a.slice(1).reduce(sub, a[0]) },
+  '*': { num: true, fn: a => a.reduce(mul, N(1)) },
+  '/': { num: true, min: 1, fn: a => a.length === 1 ? div(N(1), a[0]) : a.slice(1).reduce(div, a[0]) },
+  '=': { num: true, min: 1, fn: chain(c => c === 0) },
+  '<': { num: true, min: 1, fn: chain(c => c < 0) },
+  '>': { num: true, min: 1, fn: chain(c => c > 0) },
+  '<=': { num: true, min: 1, fn: chain(c => c <= 0) },
+  '>=': { num: true, min: 1, fn: chain(c => c >= 0) },
+  'min': { num: true, min: 1, fn: a => a.reduce((x, y) => cmp(y, x) < 0 ? y : x) },
+  'max': { num: true, min: 1, fn: a => a.reduce((x, y) => cmp(y, x) > 0 ? y : x) },
+  'remainder': { num: true, min: 2, max: 2, int: true, fn: ([a, b]) => { if (b.n === 0) throw new Error('remainder: division by zero.'); return N(a.n % b.n); } },
+  'quotient': { num: true, min: 2, max: 2, int: true, fn: ([a, b]) => { if (b.n === 0) throw new Error('quotient: division by zero.'); return N(Math.trunc(a.n / b.n)); } },
+  'even?': { num: true, min: 1, max: 1, int: true, fn: ([a]) => B(a.n % 2 === 0) },
+  'odd?': { num: true, min: 1, max: 1, int: true, fn: ([a]) => B(a.n % 2 !== 0) },
+  'zero?': { num: true, min: 1, max: 1, fn: ([a]) => B(fv(a) === 0) },
+  'not': { min: 1, max: 1, fn: ([a]) => B(isFalse(a)) },
+  'inc': { num: true, min: 1, max: 1, fn: ([a]) => add(a, N(1)) },
+  'dec': { num: true, min: 1, max: 1, fn: ([a]) => sub(a, N(1)) },
+};
+function applyPrim(name, args) {
+  const p = PRIMS[name];
+  if (p.min !== undefined && args.length < p.min) throw new Error(`${name} needs at least ${p.min} argument${p.min > 1 ? 's' : ''}.`);
+  if (p.max !== undefined && args.length > p.max) throw new Error(`${name} takes ${p.max} argument${p.max > 1 ? 's' : ''}, but was given ${args.length}.`);
+  if (p.num) needNums(name, args);
+  if (p.int) needInts(name, args);
+  return p.fn(args);
+}
+
+// ---- environments ----
+const SPECIAL = new Set(['if', 'cond', 'and', 'or', 'define', 'else', 'lambda', 'let', 'begin', 'set!', 'quote']);
+const newEnv = base => ({ vars: new Map(base ? base.vars : []), procs: new Map(base ? base.procs : []) });
+
+function loadDefs(src, base) {
+  const env = newEnv(base);
+  const defined = [];
+  for (const form of parseAll(src)) {
+    if (!(form.t === 'list' && form.items[0] && form.items[0].t === 'sym' && form.items[0].v === 'define'))
+      throw new Error(`Only define forms go here, but found ${show(form)}.`);
+    defined.push(defineForm(form, env));
+  }
+  return { env, defined };
+}
+function defineForm(form, env) {
+  const [, target, ...body] = form.items;
+  if (!target) throw new Error('define needs a name.');
+  if (body.length === 0) throw new Error(`define ${show(target)} has no body.`);
+  if (target.t === 'list') {
+    const [nm, ...ps] = target.items;
+    if (!nm || nm.t !== 'sym') throw new Error('A procedure definition looks like (define (name params...) body).');
+    for (const p of ps) if (p.t !== 'sym') throw new Error(`Parameter ${show(p)} must be a name.`);
+    if (SPECIAL.has(nm.v)) throw new Error(`${nm.v} is a special form; pick another name.`);
+    if (body.length > 1) {
+      if (body.some(b => b.t === 'list' && b.items[0] && b.items[0].t === 'sym' && b.items[0].v === 'define'))
+        throw new Error(`${nm.v} uses internal definitions (block structure, 1.1.8). Define helpers at the top level instead.`);
+      throw new Error(`${nm.v} has more than one expression in its body. Section 1.1 procedures have exactly one.`);
+    }
+    env.procs.set(nm.v, { params: ps.map(p => p.v), body: body[0] });
+    env.vars.delete(nm.v);
+    return { name: nm.v, params: ps.map(p => p.v) };
+  }
+  if (target.t !== 'sym') throw new Error('define needs a name.');
+  if (body.length > 1) throw new Error(`(define ${target.v} ...) takes exactly one value.`);
+  env.vars.set(target.v, evaluate(body[0], env));
+  env.procs.delete(target.v);
+  return { name: target.v };
+}
+
+// ---- small-step reduction ----
+function isValue(e, env) {
+  switch (e.t) {
+    case 'num': case 'bool': case 'void': return true;
+    case 'sym': return !env.vars.has(e.v) && (env.procs.has(e.v) || !!PRIMS[e.v]);
+    default: return false;
+  }
+}
+const replaceChild = (e, i, n) => L(e.items.map((c, j) => j === i ? n : c));
+function inside(e, i, env, ord, prefix) {
+  const r = reduce(e.items[i], env, ord);
+  return { ...r, node: replaceChild(e, i, r.node), path: [i, ...r.path], note: (prefix || '') + r.note };
+}
+function subst(e, map) {
+  if (e.t === 'sym') return map.has(e.v) ? map.get(e.v) : e;
+  if (e.t === 'list') return L(e.items.map(c => subst(c, map)));
+  return e;
+}
+function clauseBody(c) {
+  const body = c.items.slice(1);
+  if (body.length > 1) throw new Error('This stepper supports one expression per cond clause.');
+  return body[0];
+}
+function reduce(e, env, ord) {
+  if (isValue(e, env)) return null;
+  if (e.t === 'sym') {
+    if (env.vars.has(e.v)) return { node: env.vars.get(e.v), path: [], kind: 'lookup', note: `Look up the name ${e.v}. Its value is ${show(env.vars.get(e.v))}.` };
+    if (SPECIAL.has(e.v)) throw new Error(`${e.v} is a special form, so it can't be used as a value on its own.`);
+    throw new Error(`Unbound variable: ${e.v}. Nothing is defined with that name.`);
+  }
+  if (e.items.length === 0) throw new Error('() is an empty combination: there is no operator to apply.');
+  const h = e.items[0];
+  if (h.t === 'sym' && SPECIAL.has(h.v) && !env.vars.has(h.v)) return reduceSpecial(e, env, ord);
+  if (!isValue(h, env)) return inside(e, 0, env, ord);
+  if (h.t !== 'sym') throw new Error(`${show(h)} is not a procedure, so ${show(e)} can't be applied.`);
+  const name = h.v, args = e.items.slice(1);
+  const proc = env.procs.get(name);
+  if (proc) {
+    if (args.length !== proc.params.length)
+      throw new Error(`${name} takes ${proc.params.length} argument${proc.params.length === 1 ? '' : 's'} but was given ${args.length}.`);
+    if (ord === 'applicative') {
+      const i = args.findIndex(a => !isValue(a, env));
+      if (i >= 0) return inside(e, i + 1, env, ord);
+    }
+    const map = new Map(proc.params.map((p, i) => [p, args[i]]));
+    const pairs = proc.params.map((p, i) => `${p} = ${show(args[i])}`).join(', ');
+    const how = ord === 'normal' && args.some(a => !isValue(a, env)) ? ' The arguments go in unevaluated (normal order).' : '';
+    return {
+      node: subst(proc.body, map), path: [], kind: 'apply',
+      note: proc.params.length
+        ? `Apply ${name}: take its body ${show(proc.body)} and substitute ${pairs}.${how}`
+        : `Apply ${name}: it has no parameters, so it becomes its body ${show(proc.body)}.`,
+    };
+  }
+  const i = args.findIndex(a => !isValue(a, env));
+  if (i >= 0) return inside(e, i + 1, env, ord);
+  const val = applyPrim(name, args);
+  return { node: val, path: [], kind: 'prim', note: `${name} is a primitive, so compute it directly: ${show(e)} is ${show(val)}.` };
+}
+function reduceSpecial(e, env, ord) {
+  const h = e.items[0].v;
+  if (h === 'if') {
+    if (e.items.length < 3 || e.items.length > 4) throw new Error('if looks like (if test consequent alternative).');
+    const p = e.items[1];
+    if (!isValue(p, env)) return inside(e, 1, env, ord);
+    if (!isFalse(p)) return { node: e.items[2], path: [], kind: 'if', note: `if: the test is ${show(p)}, so the result is the consequent ${show(e.items[2])}. The alternative${e.items[3] ? ' ' + show(e.items[3]) : ''} is thrown away without being evaluated.` };
+    return { node: e.items[3] || V, path: [], kind: 'if', note: `if: the test is #f, so the result is the alternative ${e.items[3] ? show(e.items[3]) : '(none)'}. The consequent ${show(e.items[2])} is thrown away without being evaluated.` };
+  }
+  if (h === 'cond') {
+    const clauses = e.items.slice(1);
+    if (clauses.length === 0) return { node: V, path: [], kind: 'cond', note: 'cond: no clause matched, so the value is unspecified.' };
+    const c = clauses[0];
+    if (c.t !== 'list' || c.items.length === 0) throw new Error(`Each cond clause looks like (test expression), but found ${show(c)}.`);
+    const test = c.items[0];
+    if (test.t === 'sym' && test.v === 'else') {
+      const b = clauseBody(c);
+      if (!b) throw new Error('else needs an expression.');
+      return { node: b, path: [], kind: 'cond', note: `cond: reached the else clause, so the whole cond becomes ${show(b)}.` };
+    }
+    if (!isValue(test, env)) {
+      const r = reduce(test, env, ord);
+      return { ...r, node: replaceChild(e, 1, replaceChild(c, 0, r.node)), path: [1, 0, ...r.path], note: (r.path.length === 0 && r.kind !== 'lookup' ? 'cond evaluates the first remaining clause\'s test. ' : '') + r.note };
+    }
+    if (isFalse(test)) {
+      return { node: L([e.items[0], ...clauses.slice(1)]), path: [1], kind: 'cond', note: `cond: this clause's test is #f, so drop the clause and try the next one.${clauses.length === 1 ? ' That was the last clause.' : ''}` };
+    }
+    const b = c.items.length === 1 ? test : clauseBody(c);
+    const rest = clauses.length > 1 ? ` The ${clauses.length - 1} later clause${clauses.length > 2 ? 's are' : ' is'} never looked at.` : '';
+    return { node: b, path: [], kind: 'cond', note: `cond: this clause's test is ${show(test)}, so the whole cond becomes ${show(b)}.${rest}` };
+  }
+  if (h === 'and' || h === 'or') {
+    const args = e.items.slice(1);
+    if (args.length === 0) return { node: B(h === 'and'), path: [], kind: 'logic', note: `(${h}) with no operands is ${h === 'and' ? '#t' : '#f'}.` };
+    const a = args[0];
+    if (!isValue(a, env)) return inside(e, 1, env, ord);
+    const stop = h === 'and' ? isFalse(a) : !isFalse(a);
+    if (stop) return { node: a, path: [], kind: 'logic', note: `${h}: the operand is ${show(a)}, so ${h} stops here with ${show(a)}.${args.length > 1 ? ' The remaining operands are never evaluated.' : ''}` };
+    if (args.length === 1) return { node: a, path: [], kind: 'logic', note: `${h}: that was the last operand, so its value ${show(a)} is the result.` };
+    return { node: L([e.items[0], ...args.slice(1)]), path: [1], kind: 'logic', note: `${h}: ${show(a)} ${h === 'and' ? 'is true' : 'is #f'}, so drop it and check the next operand.` };
+  }
+  if (h === 'define') throw new Error('define goes in the Definitions box, not inside an expression.');
+  if (h === 'lambda' || h === 'let') throw new Error(`${h} arrives in section 1.3. This stepper covers section 1.1.`);
+  if (h === 'else') throw new Error('else only works as the test of the last cond clause.');
+  throw new Error(`${h} isn't supported in this section 1.1 stepper.`);
+}
+function evaluate(e, env, limit = 50000) {
+  let cur = e;
+  for (let i = 0; i < limit; i++) {
+    const r = reduce(cur, env, 'applicative');
+    if (!r) return cur;
+    cur = r.node;
+    if (i % 500 === 0 && show(cur).length > 20000) throw new Error('The expression keeps growing. This looks like infinite recursion.');
+  }
+  throw new Error(`Still running after ${limit} steps. This looks like infinite recursion.`);
+}
+function numEq(a, b) {
+  if (a.t !== 'num' || b.t !== 'num') return false;
+  if (a.ex && b.ex) return a.n === b.n && a.d === b.d;
+  return Math.abs(fv(a) - fv(b)) < 1e-9;
+}
+// ---- process shape helpers (1.2) ----
+function nodeAt(e, path) { for (const i of path) e = e.items[i]; return e; }
+// Where a redex sits: an argument of a compound call, a test, or part of the main body.
+function redexContext(expr, path, env) {
+  if (path.length === 0) return 'root';
+  const parent = nodeAt(expr, path.slice(0, -1)), idx = path[path.length - 1];
+  const h = parent.items[0];
+  if (h && h.t === 'sym') {
+    if (env.procs.has(h.v) && !env.vars.has(h.v) && idx > 0) return 'arg';
+    if (h.v === 'if' && idx === 1) return 'test';
+    if (h.v === 'and' || h.v === 'or') return 'test';
+  }
+  if (path.length >= 2) {
+    const gp = nodeAt(expr, path.slice(0, -2));
+    if (gp.items[0] && gp.items[0].t === 'sym' && gp.items[0].v === 'cond' && idx === 0) return 'test';
+  }
+  return 'body';
+}
+const countLists = e => e.t === 'list' ? 1 + e.items.reduce((s, c) => s + countLists(c), 0) : 0;
+// Run with the substitution model, counting procedure calls and peak expression size.
+function measure(src, env, limit = 400000) {
+  let cur = parseOne(src), calls = 0, steps = 0, space = countLists(cur);
+  for (; steps < limit; steps++) {
+    const r = reduce(cur, env, 'applicative');
+    if (!r) return { value: cur, calls, steps, space };
+    if (r.kind === 'apply') calls++;
+    cur = r.node;
+    const sz = countLists(cur); if (sz > space) space = sz;
+    if (space > 5000) throw new Error('The expression grew past 5000 pending operations.');
+  }
+  throw new Error(`Still running after ${limit} steps.`);
+}
+if (typeof module !== 'undefined') module.exports = { measure, redexContext, countLists, parseAll, parseOne, loadDefs, reduce, evaluate, show, numEq, N, B, atom };
+
+// ---------------- UI ----------------
+const PRELUDE = `; 1.2.1 factorial, recursive and iterative
+(define (factorial n)
+  (if (= n 1)
+      1
+      (* n (factorial (- n 1)))))
+(define (factorial-iter n) (fact-iter 1 1 n))
+(define (fact-iter product counter max-count)
+  (if (> counter max-count)
+      product
+      (fact-iter (* counter product) (+ counter 1) max-count)))
+
+; 1.2.2 Fibonacci, tree-recursive and iterative
+(define (fib n)
+  (cond ((= n 0) 0)
+        ((= n 1) 1)
+        (else (+ (fib (- n 1)) (fib (- n 2))))))
+(define (fib-fast n) (fib-iter 1 0 n))
+(define (fib-iter a b count)
+  (if (= count 0) b (fib-iter (+ a b) a (- count 1))))
+
+; 1.2.2 counting change
+(define (count-change amount) (cc amount 5))
+(define (cc amount kinds-of-coins)
+  (cond ((= amount 0) 1)
+        ((or (< amount 0) (= kinds-of-coins 0)) 0)
+        (else (+ (cc amount (- kinds-of-coins 1))
+                 (cc (- amount (first-denomination kinds-of-coins))
+                     kinds-of-coins)))))
+(define (first-denomination kinds-of-coins)
+  (cond ((= kinds-of-coins 1) 1)
+        ((= kinds-of-coins 2) 5)
+        ((= kinds-of-coins 3) 10)
+        ((= kinds-of-coins 4) 25)
+        ((= kinds-of-coins 5) 50)))
+
+; Exercise 1.9 (renamed so + keeps working)
+(define (plus-a a b) (if (= a 0) b (inc (plus-a (dec a) b))))
+(define (plus-b a b) (if (= a 0) b (plus-b (dec a) (inc b))))
+
+; Exercise 1.10 Ackermann's function
+(define (A x y)
+  (cond ((= y 0) 0)
+        ((= x 0) (* 2 y))
+        ((= y 1) 2)
+        (else (A (- x 1) (A x (- y 1))))))
+
+; Exercise 1.15
+(define (abs x) (if (< x 0) (- x) x))
+(define (cube x) (* x x x))
+(define (p x) (- (* 3 x) (* 4 (cube x))))
+(define (sine angle)
+  (if (not (> (abs angle) 0.1))
+      angle
+      (p (sine (/ angle 3.0)))))`;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const QUIZ_ENV = loadDefs(PRELUDE).env;
+const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ---- saved progress ----
+const KEY = 'sicp-1-2-lab-v1';
+let saved = { answers: {}, done: {} };
+try { const raw = localStorage.getItem(KEY); if (raw) saved = Object.assign(saved, JSON.parse(raw)); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} };
+
+// ---------------- process shapes ----------------
+const EXAMPLES = [
+  { label: '(factorial 6)', expr: '(factorial 6)', blurb: 'A linear recursive process. Each call leaves a multiplication waiting, so the expression grows to the right, then shrinks as the multiplications finally run. Run it and look at the triangle in the strip below.' },
+  { label: '(factorial-iter 6)', expr: '(factorial-iter 6)', blurb: 'A linear iterative process. Everything it needs to know lives in three state variables: product, counter and max-count. Nothing is left waiting, so the strip stays flat.' },
+  { label: 'Ex 1.9 plus-a', expr: '(plus-a 4 5)', blurb: 'Exercise 1.9, first version. Watch whether inc operations pile up outside the recursive call.' },
+  { label: 'Ex 1.9 plus-b', expr: '(plus-b 4 5)', blurb: 'Exercise 1.9, second version. The recursive call is the last thing that happens, with nothing wrapped around it.' },
+  { label: '(fib 5)', expr: '(fib 5)', blurb: 'Tree recursion. Each fib call makes two more, and (fib 3), (fib 2) and so on get computed again and again. Switch to Every step to see how much work hides behind the book view.' },
+  { label: '(fib-fast 5)', expr: '(fib-fast 5)', blurb: 'The iterative Fibonacci: two state variables a and b slide along the sequence. Linear steps, constant space.' },
+  { label: 'Ex 1.10 (A 1 4)', expr: '(A 1 4)', blurb: 'Exercise 1.10: Ackermann\'s function. Watch the pattern (A 0 (A 0 ...)) build up, then collapse into doublings.' },
+  { label: 'Ex 1.15 sine', expr: '(sine 12.15)', blurb: 'Exercise 1.15: count how many times p appears before the expression starts shrinking. That is the number of times p gets applied.' },
+];
+const KIND_LABEL = { apply: 'substitute', prim: 'primitive', if: 'if', cond: 'cond', logic: 'and/or', lookup: 'look up' };
+
+let env = QUIZ_ENV;
+let bookView = true;
+let steps = [];
+let stopReason = '';
+
+function renderNode(n, hl, depth) {
+  if (hl && hl.length === 0) return '<mark class="redex">' + renderNode(n, null, depth) + '</mark>';
+  if (n.t === 'list') {
+    const cls = 'd' + (depth % 4);
+    const inner = n.items.map((c, i) => renderNode(c, hl && hl[0] === i ? hl.slice(1) : null, depth + 1)).join(' ');
+    return `<span class="${cls}">(</span>${inner}<span class="${cls}">)</span>`;
+  }
+  if (n.t === 'sym') return SPECIAL.has(n.v) ? `<span class="kw">${esc(n.v)}</span>` : esc(n.v);
+  if (n.t === 'bool') return `<span class="boolv">${show(n)}</span>`;
+  return `<span class="numv">${esc(show(n))}</span>`;
+}
+function makeStep(expr) {
+  const s = { expr, size: countLists(expr) };
+  try { s.red = reduce(expr, env, 'applicative'); } catch (e) { s.red = null; s.err = e.message; }
+  if (s.red) {
+    const ctx = redexContext(expr, s.red.path, env);
+    s.book = s.red.kind === 'apply' || (s.red.kind === 'prim' && (ctx === 'body' || ctx === 'root'));
+  } else s.book = true;
+  return s;
+}
+const visible = (s, i) => !bookView || i === 0 || s.book;
+function startExpr(src) {
+  stopReason = '';
+  try { steps = [makeStep(parseOne(src))]; steps[0].book = true; }
+  catch (e) { steps = [{ expr: null, red: null, err: e.message, size: 0, book: true }]; }
+  renderTrace();
+}
+function rawStep() {
+  const last = steps[steps.length - 1];
+  if (!last || !last.red) return false;
+  const next = makeStep(last.red.node);
+  next.kind = last.red.kind;
+  steps.push(next);
+  return true;
+}
+function stepVisible() {
+  stopReason = '';
+  for (let k = 0; k < 20000; k++) {
+    if (!rawStep()) break;
+    const i = steps.length - 1;
+    if (visible(steps[i], i)) break;
+  }
+  renderTrace();
+}
+function back() {
+  if (steps.length < 2) return;
+  stopReason = '';
+  steps.pop();
+  while (steps.length > 1 && !visible(steps[steps.length - 1], steps.length - 1)) steps.pop();
+  renderTrace();
+}
+function run() {
+  stopReason = '';
+  for (let i = 0; i < 6000; i++) {
+    const last = steps[steps.length - 1];
+    if (!last.red) break;
+    if (last.size > 400) { stopReason = 'Stopped: the expression keeps growing.'; break; }
+    rawStep();
+    if (i === 5999 && steps[steps.length - 1].red) stopReason = 'Paused after 6000 steps. Press Run again to continue.';
+  }
+  renderTrace();
+}
+function noteHtml(s, latest) {
+  if (s.err) return `<div class="note err">${esc(s.err)}</div>`;
+  if (!s.red) return `<div class="note final">Done. The value is ${esc(show(s.expr))}.</div>`;
+  if (bookView) return '';
+  return `<div class="note"><span class="tag ${s.red.kind}">${KIND_LABEL[s.red.kind]}</span><span>${latest ? 'Next: ' : ''}${esc(s.red.note)}</span></div>`;
+}
+function renderTrace() {
+  const ol = $('trace');
+  const rows = [];
+  let shown = 0;
+  steps.forEach((s, i) => {
+    const latest = i === steps.length - 1;
+    if (!visible(s, i) && !latest) return;
+    const pre = s.expr ? renderNode(s.expr, s.red ? s.red.path : null, 0) : '';
+    rows.push(`<li class="${latest ? 'latest' : ''}"><span class="n">${i === 0 ? 'start' : bookView ? ++shown : i}</span><div class="body">${pre ? `<pre>${pre}</pre>` : ''}${noteHtml(s, latest)}</div></li>`);
+  });
+  if (stopReason) rows.push(`<li><span class="n"></span><div class="body"><div class="note loop">${esc(stopReason)}</div></div></li>`);
+  ol.innerHTML = rows.join('');
+  ol.scrollTop = ol.scrollHeight;
+  let calls = 0; steps.forEach(s => { if (s.kind === 'apply') calls++; });
+  const peak = Math.max(...steps.map(s => s.size));
+  const n = steps.length - 1;
+  $('stats').textContent = steps[0] && steps[0].expr ? `${n} small step${n === 1 ? '' : 's'} · ${calls} procedure call${calls === 1 ? '' : 's'} · peak ${peak} pending operation${peak === 1 ? '' : 's'}` : '';
+  drawShape();
+  const last = steps[steps.length - 1];
+  $('step').disabled = $('run').disabled = !last || !last.red;
+  $('back').disabled = steps.length < 2;
+}
+function drawShape() {
+  const svg = $('shape-svg');
+  const W = 600, H = 72, pad = 4;
+  const ys = steps.filter((s, i) => s.expr && (i === 0 || s.book || i === steps.length - 1)).map(s => s.size);
+  if (ys.length === 0) { svg.innerHTML = ''; $('shape-stat').textContent = ''; return; }
+  const maxY = Math.max(4, ...ys), nx = Math.max(ys.length - 1, 1);
+  const pt = (y, i) => [(i / nx) * W, H - pad - (y / maxY) * (H - 2 * pad)];
+  const pts = ys.map((y, i) => pt(y, i));
+  const line = pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  const area = `0,${H} ${line} ${pts[pts.length - 1][0].toFixed(1)},${H}`;
+  const [cx, cy] = pts[pts.length - 1];
+  svg.innerHTML = `<line x1="0" x2="${W}" y1="${H - 0.5}" y2="${H - 0.5}" stroke="var(--line)" vector-effect="non-scaling-stroke"/>
+    <polygon points="${area}" fill="var(--accent-soft)"/>
+    <polyline points="${line}" fill="none" stroke="var(--accent)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+    <line x1="${cx}" x2="${cx}" y1="0" y2="${H}" stroke="var(--accent)" stroke-dasharray="2 3" vector-effect="non-scaling-stroke" opacity="0.6"/>`;
+  $('shape-stat').textContent = `now ${ys[ys.length - 1]} · peak ${Math.max(...ys)}`;
+}
+function setView(b) {
+  bookView = b;
+  $('view-book').setAttribute('aria-pressed', b);
+  $('view-all').setAttribute('aria-pressed', !b);
+  renderTrace();
+}
+function renderExamples(activeLabel) {
+  $('examples').innerHTML = EXAMPLES.map((x, i) => `<button class="chip" data-i="${i}" aria-pressed="${x.label === activeLabel}">${esc(x.label)}</button>`).join('');
+}
+function loadExample(x) {
+  $('expr').value = x.expr;
+  $('blurb').textContent = x.blurb;
+  renderExamples(x.label);
+  startExpr(x.expr);
+}
+function stepThrough(expr) {
+  const ex = EXAMPLES.find(x => x.expr === expr);
+  if (ex) loadExample(ex); else { $('expr').value = expr; $('blurb').textContent = ''; renderExamples(null); startExpr(expr); }
+  $('stepper').scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'start' });
+}
+$('examples').addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) loadExample(EXAMPLES[+b.dataset.i]); });
+$('load').onclick = () => { $('blurb').textContent = ''; renderExamples(null); startExpr($('expr').value); };
+$('expr').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('load').click(); } });
+$('step').onclick = stepVisible;
+$('back').onclick = back;
+$('run').onclick = run;
+$('view-book').onclick = () => setView(true);
+$('view-all').onclick = () => setView(false);
+document.addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input, textarea, button, summary')) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); stepVisible(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); back(); }
+});
+$('defs').value = PRELUDE;
+$('apply-defs').onclick = () => {
+  try { env = loadDefs($('defs').value).env; $('defs-err').textContent = 'Using your definitions.'; $('defs-err').style.color = 'var(--good)'; startExpr($('expr').value); }
+  catch (e) { $('defs-err').textContent = e.message; $('defs-err').style.color = ''; }
+};
+$('reset-defs').onclick = () => { $('defs').value = PRELUDE; env = QUIZ_ENV; $('defs-err').textContent = ''; startExpr($('expr').value); };
+
+// ---------------- growth explorer ----------------
+const GROWTH = [
+  { name: 'factorial', ns: range(1, 18, 1), verdict: 'Calls grow by one per step of n and so does space: Θ(n) time and Θ(n) space. The pending multiplications are the space.' },
+  { name: 'factorial-iter', ns: range(1, 18, 1), verdict: 'Calls grow linearly, Θ(n) time, but space stays flat: Θ(1). The state is all in the arguments.' },
+  { name: 'fib', ns: range(0, 16, 1), verdict: 'Calls multiply by about 1.618 (φ, the golden ratio) every time n goes up by one: exponential, Θ(φⁿ). Space only grows linearly, Θ(n), because at any moment only one path down the tree is pending.' },
+  { name: 'fib-fast', ns: range(0, 30, 2), verdict: 'The iterative version: Θ(n) time and Θ(1) space. Compare its calls axis with fib: about 30 calls at n = 30, against 2.7 million for the tree version.' },
+  { name: 'count-change', ns: range(0, 50, 5), verdict: 'Tree recursion again. Space is Θ(n): the deepest branch pays out 1 cent at a time. Time grows as a polynomial whose degree is the number of coin kinds, Θ(n⁵) for 5 kinds (exercise 1.14).' },
+];
+function range(a, b, s) { const r = []; for (let x = a; x <= b; x += s) r.push(x); return r; }
+const gCache = {};
+let gActive = 'fib', gToken = 0;
+
+function niceMax(v) { if (v <= 4) return 4; const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 2, 2.5, 5, 10]) if (m * p >= v) return m * p; return 10 * p; }
+const fmtInt = v => v.toLocaleString('en-US');
+function drawChart(el, data, key) {
+  const svg = el.querySelector('svg'), tip = el.querySelector('.tip');
+  const W = 320, H = 190, L = 44, R = 10, T = 10, Bm = 26;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  if (!data.length) { svg.innerHTML = ''; return; }
+  const xs = data.map(d => d.n), ys = data.map(d => d[key]);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), ymax = niceMax(Math.max(...ys));
+  const X = n => L + (x1 === x0 ? 0 : (n - x0) / (x1 - x0)) * (W - L - R);
+  const Y = v => T + (1 - v / ymax) * (H - T - Bm);
+  let g = '';
+  for (let k = 0; k <= 4; k++) {
+    const v = ymax * k / 4, y = Y(v);
+    g += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="1" ${k ? 'stroke-dasharray="2 3"' : ''}/>`;
+    g += `<text x="${L - 6}" y="${y + 3.5}" text-anchor="end">${v >= 10000 ? (v / 1000).toLocaleString('en-US') + 'k' : fmtInt(v)}</text>`;
+  }
+  const xt = [x0, Math.round((x0 + x1) / 2), x1];
+  [...new Set(xt)].forEach(n => { g += `<text x="${X(n)}" y="${H - 8}" text-anchor="middle">${n}</text>`; });
+  g += `<text x="${W - R}" y="${H - 8}" text-anchor="end" style="display:none">n</text>`;
+  const path = data.map((d, i) => `${i ? 'L' : 'M'}${X(d.n).toFixed(1)},${Y(d[key]).toFixed(1)}`).join('');
+  g += `<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  data.forEach(d => { g += `<circle cx="${X(d.n)}" cy="${Y(d[key])}" r="3.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>`; });
+  g += `<line class="cross" x1="0" x2="0" y1="${T}" y2="${H - Bm}" stroke="var(--muted)" stroke-dasharray="2 3" visibility="hidden"/>`;
+  g += `<rect class="hit" x="${L}" y="0" width="${W - L - R}" height="${H}" fill="transparent"/>`;
+  svg.innerHTML = g;
+  const hit = svg.querySelector('.hit'), cross = svg.querySelector('.cross');
+  const move = ev => {
+    const r = svg.getBoundingClientRect();
+    const sx = (ev.clientX - r.left) * W / r.width;
+    let best = data[0]; for (const d of data) if (Math.abs(X(d.n) - sx) < Math.abs(X(best.n) - sx)) best = d;
+    cross.setAttribute('x1', X(best.n)); cross.setAttribute('x2', X(best.n)); cross.setAttribute('visibility', 'visible');
+    const er = el.getBoundingClientRect();
+    tip.hidden = false;
+    tip.textContent = `n = ${best.n}: ${fmtInt(best[key])} ${key === 'calls' ? 'calls' : 'pending'}`;
+    tip.style.left = (r.left - er.left + X(best.n) * r.width / W) + 'px';
+    tip.style.top = (r.top - er.top + Y(best[key]) * r.height / H) + 'px';
+  };
+  const leave = () => { tip.hidden = true; cross.setAttribute('visibility', 'hidden'); };
+  hit.addEventListener('pointermove', move); hit.addEventListener('pointerdown', move); hit.addEventListener('pointerleave', leave);
+}
+function renderGrowth() {
+  const spec = GROWTH.find(g => g.name === gActive);
+  const data = gCache[gActive] || [];
+  drawChart($('chart-calls'), data, 'calls');
+  drawChart($('chart-space'), data, 'space');
+  const done = data.length === spec.ns.length;
+  $('g-verdict').innerHTML = done ? esc(spec.verdict) : `Measuring (${spec.name} n) for n = ${spec.ns[0]} to ${spec.ns[spec.ns.length - 1]}: ${data.length} of ${spec.ns.length} done…`;
+  $('g-table').innerHTML = `<tr><th>n</th><th>value</th><th>calls</th><th>× previous</th><th>space</th></tr>` +
+    data.map((d, i) => `<tr><td>${d.n}</td><td>${esc(d.value)}</td><td>${fmtInt(d.calls)}</td><td>${i && data[i - 1].calls ? (d.calls / data[i - 1].calls).toFixed(2) : '–'}</td><td>${d.space}</td></tr>`).join('');
+}
+function selectGrowth(name) {
+  gActive = name;
+  $('g-procs').querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', c.dataset.name === name));
+  const spec = GROWTH.find(g => g.name === name);
+  if (!gCache[name]) gCache[name] = [];
+  const token = ++gToken;
+  const work = () => {
+    if (token !== gToken) return;
+    const data = gCache[name];
+    if (data.length < spec.ns.length) {
+      const n = spec.ns[data.length];
+      try { const m = measure(`(${name} ${n})`, QUIZ_ENV); data.push({ n, value: show(m.value), calls: m.calls, space: m.space }); }
+      catch (e) { data.push({ n, value: 'error', calls: 0, space: 0 }); }
+      renderGrowth();
+      setTimeout(work, 0);
+    } else renderGrowth();
+  };
+  renderGrowth();
+  work();
+}
+$('g-procs').innerHTML = GROWTH.map(g => `<button class="chip" data-name="${g.name}">(${g.name} n)</button>`).join('');
+$('g-procs').addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) selectGrowth(b.dataset.name); });
+
+// ---------------- exercises ----------------
+const EXERCISES = [
+  { id: '1.9', title: 'Recursive or iterative?', render: renderEx19 },
+  { id: '1.10', title: "Ackermann's function", render: renderEx110 },
+  { id: '1.11', title: 'A function, two processes', render: renderEx111 },
+  { id: '1.12', title: "Pascal's triangle", render: renderEx112 },
+  { id: '1.13', title: 'Fib(n) and the golden ratio (optional)', render: renderEx113 },
+  { id: '1.14', title: 'The count-change tree', render: renderEx114 },
+  { id: '1.15', title: 'Approximating sine', render: renderEx115 },
+];
+const exKey = id => 'ex-' + id.replace('.', '-');
+function renderProgress() {
+  const n = EXERCISES.filter(x => saved.done[x.id]).length;
+  $('progress').innerHTML = EXERCISES.map(x => `<a class="pip ${saved.done[x.id] ? 'done' : ''}" href="#${exKey(x.id)}">${saved.done[x.id] ? '✓ ' : ''}${x.id}</a>`).join('') + `<span class="count">${n} of ${EXERCISES.length} done</span>`;
+  EXERCISES.forEach(x => {
+    const s = document.querySelector(`#${exKey(x.id)} .state`);
+    if (s) { s.textContent = saved.done[x.id] ? 'Done' : 'Not done yet'; s.classList.toggle('done', !!saved.done[x.id]); }
+  });
+}
+function markDone(id, val) { saved.done[id] = !!val; save(); renderProgress(); }
+function exCard(x) {
+  const el = document.createElement('article');
+  el.className = 'ex'; el.id = exKey(x.id);
+  el.innerHTML = `<div class="ex-head"><div><div class="eyebrow">Exercise ${x.id}</div><h3>${esc(x.title)}</h3></div><span class="state"></span></div><div class="ex-body" style="display:grid;gap:12px"></div>`;
+  $('ex-list').appendChild(el);
+  x.render(el.querySelector('.ex-body'), x.id);
+}
+function parseAnswer(s) {
+  s = (s || '').trim(); if (!s) return null;
+  try { const v = parseOne(s); return v.t === 'num' || v.t === 'bool' ? v : null; } catch (e) { return null; }
+}
+function mcq(body, key, q, opts, right, why, onAnswer) {
+  const wrap = document.createElement('div');
+  wrap.className = 'mcq';
+  wrap.innerHTML = `<div>${q}</div><div class="opts">${opts.map((o, i) => `<button class="opt" data-i="${i}"><span class="letter">${'ABCD'[i]}</span><span>${o}</span></button>`).join('')}</div><div class="why"></div>`;
+  body.appendChild(wrap);
+  function paint(i) {
+    wrap.querySelectorAll('.opt').forEach((b, j) => { b.classList.toggle('right', j === right && i !== undefined); b.classList.toggle('wrong', j === i && i !== right); });
+    wrap.querySelector('.why').innerHTML = i === undefined ? '' : (i === right ? '<span class="ok">Right.</span> ' : '<span class="no">Not quite.</span> ') + why;
+  }
+  wrap.querySelector('.opts').addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if (!b) return;
+    saved.answers[key] = +b.dataset.i; save(); paint(+b.dataset.i); onAnswer();
+  });
+  if (saved.answers[key] !== undefined) paint(saved.answers[key]);
+  return () => saved.answers[key] === right;
+}
+// A short-answer box checked against a number.
+function numQ(body, key, label, expected, okMsg, onChange) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = `<label for="${key}">${label}</label><input type="text" id="${key}" style="max-width:9rem" spellcheck="false" autocomplete="off"><button>Check</button><span class="fb"></span>`;
+  body.appendChild(row);
+  const inp = row.querySelector('input'), fb = row.querySelector('.fb');
+  inp.value = saved.answers[key] || '';
+  let ok = false;
+  const check = () => {
+    saved.answers[key] = inp.value; save();
+    const v = parseAnswer(inp.value);
+    ok = !!v && numEq(v, expected);
+    fb.innerHTML = !inp.value.trim() ? '' : ok ? `<span class="ok">✓ ${okMsg}</span>` : `<span class="no">✗ Not quite.</span>`;
+    onChange();
+  };
+  row.querySelector('button').onclick = check;
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
+  if (inp.value.trim()) setTimeout(check, 0);
+  return () => ok;
+}
+function linkRow(body, items) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  items.forEach(([label, fn]) => { const b = document.createElement('button'); b.className = 'linkbtn'; b.textContent = label; b.onclick = fn; row.appendChild(b); });
+  body.appendChild(row);
+}
+function listing(body, src) { const pre = document.createElement('pre'); pre.className = 'listing'; pre.textContent = src; body.appendChild(pre); }
+function para(body, html) { const p = document.createElement('p'); p.innerHTML = html; body.appendChild(p); }
+
+// Runs user definitions against test cases; returns {pass, total, html}.
+function runTests(src, tests, pickName) {
+  const { env: e2, defined } = loadDefs(src, QUIZ_ENV);
+  const name = pickName(defined);
+  let pass = 0;
+  const lines = tests.map(([args, want]) => {
+    const call = `(${name} ${args.join(' ')})`;
+    let got, good = false;
+    try { const v = evaluate(parseOne(call), e2); got = show(v); good = numEq(v, N(want)); } catch (err) { got = err.message; }
+    if (good) pass++;
+    return `<div><span class="${good ? 'ok' : 'no'}">${good ? '✓' : '✗'}</span> ${esc(call)} → ${esc(got)}${good ? '' : `  (expected ${want})`}</div>`;
+  });
+  return { pass, total: tests.length, html: `<div class="results">${lines.join('')}</div>`, env: e2, name };
+}
+
+function renderEx19(body, id) {
+  para(body, 'Both procedures add two positive integers using <code>inc</code> and <code>dec</code>. The book calls both of them <code>+</code>; here they are <code>plus-a</code> and <code>plus-b</code>.');
+  listing(body, '(define (plus-a a b)\n  (if (= a 0) b (inc (plus-a (dec a) b))))\n\n(define (plus-b a b)\n  (if (= a 0) b (plus-b (dec a) (inc b))))');
+  const update = () => markDone(id, a() && b());
+  const opts = ['A recursive process', 'An iterative process'];
+  const a = mcq(body, 'ex19-a', 'What kind of process does <code>(plus-a 4 5)</code> generate?', opts, 0,
+    'The inc wraps around the recursive call, so it has to wait. You get (inc (inc (inc (inc 5)))) before anything is added: the expression grows, then shrinks.', update);
+  const b = mcq(body, 'ex19-b', 'What kind of process does <code>(plus-b 4 5)</code> generate?', opts, 1,
+    'The recursive call is the whole result, with nothing waiting outside it. The state is just a and b: (plus-b 3 6), (plus-b 2 7), and so on. Both are recursive procedures; only plus-a generates a recursive process.', update);
+  linkRow(body, [['Step through plus-a', () => stepThrough('(plus-a 4 5)')], ['Step through plus-b', () => stepThrough('(plus-b 4 5)')]]);
+  update();
+}
+
+function renderEx110(body, id) {
+  listing(body, '(define (A x y)\n  (cond ((= y 0) 0)\n        ((= x 0) (* 2 y))\n        ((= y 1) 2)\n        (else (A (- x 1) (A x (- y 1))))))');
+  const update = () => markDone(id, [v1, v2, v3, f, g, h].every(q => q()));
+  const box = document.createElement('div'); box.className = 'inline-inputs'; body.appendChild(box);
+  const v1 = numQ(box, 'ex110-1', '<code>(A 1 10)</code> =', N(1024), '1024, which is 2¹⁰', update);
+  const v2 = numQ(box, 'ex110-2', '<code>(A 2 4)</code> =', N(65536), '65536, which is 2¹⁶', update);
+  const v3 = numQ(box, 'ex110-3', '<code>(A 3 3)</code> =', N(65536), '65536 again: (A 3 3) reduces to (A 2 4)', update);
+  para(body, 'Now give a concise mathematical definition for each of these:');
+  listing(body, '(define (f n) (A 0 n))\n(define (g n) (A 1 n))\n(define (h n) (A 2 n))');
+  const f = mcq(body, 'ex110-f', '<code>(f n)</code> computes…', ['n²', '2n', '2ⁿ'], 1, 'With x = 0 the second clause fires at once: (* 2 n).', update);
+  const g = mcq(body, 'ex110-g', '<code>(g n)</code> computes, for n ≥ 1…', ['2n', '2ⁿ', 'n!'], 1, '(A 1 n) = (A 0 (A 1 (- n 1))) = 2 · (A 1 (- n 1)), and (A 1 1) = 2. Doubling n times gives 2ⁿ.', update);
+  const h = mcq(body, 'ex110-h', '<code>(h n)</code> computes, for n ≥ 1…', ['2ⁿ', '2^(2n)', 'A tower of n twos: 2^2^…^2'], 2, '(A 2 n) = (A 1 (A 2 (- n 1))) = 2^(A 2 (- n 1)), and (A 2 1) = 2. So h(1) = 2, h(2) = 2² = 4, h(3) = 2⁴ = 16, h(4) = 2¹⁶ = 65536.', update);
+  linkRow(body, [['Step through (A 1 4)', () => stepThrough('(A 1 4)')], ['Step through (A 2 3)', () => stepThrough('(A 2 3)')]]);
+  update();
+}
+
+function renderEx111(body, id) {
+  para(body, 'f(n) = n if n &lt; 3, and f(n) = f(n − 1) + 2f(n − 2) + 3f(n − 3) if n ≥ 3. Write one procedure that generates a <strong>recursive</strong> process and one that generates an <strong>iterative</strong> process. The tests check the values, then measure space at n = 6 and n = 12 to see whether the process really is iterative.');
+  const want = [0, 1, 2, 4, 11, 25, 59, 142, 335, 796, 1892];
+  const tests = want.map((w, i) => [[i], w]);
+  const parts = [
+    { key: 'ex111-r', label: 'Recursive version', starter: '(define (f-rec n)\n  ;; your code here\n  )', wantIter: false },
+    { key: 'ex111-i', label: 'Iterative version', starter: '(define (f-iter n)\n  ;; your code here: a helper with state variables works well\n  )', wantIter: true },
+  ];
+  const oks = {};
+  const update = () => markDone(id, oks['ex111-r'] && oks['ex111-i']);
+  parts.forEach(part => {
+    const wrap = document.createElement('div'); wrap.style.display = 'grid'; wrap.style.gap = '8px';
+    wrap.innerHTML = `<h4 style="margin:0;font:600 14px var(--f-body)">${part.label}</h4><textarea rows="6" spellcheck="false" aria-label="${part.label}" id="${part.key}"></textarea><div class="row"><button class="primary">Run the tests</button></div><div class="feedback"></div>`;
+    body.appendChild(wrap);
+    const ta = wrap.querySelector('textarea'), fb = wrap.querySelector('.feedback');
+    ta.value = saved.answers[part.key] || part.starter;
+    ta.addEventListener('input', () => { saved.answers[part.key] = ta.value; save(); });
+    const check = () => {
+      let ok = false;
+      try {
+        const r = runTests(ta.value, tests, defined => {
+          const d = [...defined].reverse().find(d => d.params && d.params.length === 1);
+          if (!d) throw new Error('Define a procedure that takes one argument n, like (define (f-iter n) ...).');
+          return d.name;
+        });
+        let shapeMsg = '';
+        let iterative = null;
+        try {
+          const s6 = measure(`(${r.name} 6)`, r.env).space, s12 = measure(`(${r.name} 12)`, r.env).space;
+          iterative = s12 <= s6;
+          shapeMsg = `Peak space: ${s6} pending operations at n = 6, ${s12} at n = 12, so this generates ${iterative ? 'an iterative' : 'a recursive'} process.`;
+        } catch (err) { shapeMsg = `Couldn't measure the space: ${err.message}`; }
+        const valuesOk = r.pass === r.total;
+        ok = valuesOk && iterative === part.wantIter;
+        let head = valuesOk ? 'All values are right. ' : `${r.pass} of ${r.total} values are right. `;
+        if (valuesOk && iterative !== null && iterative !== part.wantIter) head += part.wantIter ? 'But the process still grows with n: something is left waiting outside the recursive call. ' : 'This one is iterative, but this box wants the recursive version. ';
+        fb.innerHTML = `<div style="margin-bottom:6px">${esc(head)}${esc(shapeMsg)}</div>${r.html}`;
+      } catch (err) { fb.textContent = err.message; }
+      fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+      oks[part.key] = ok; update();
+    };
+    wrap.querySelector('button').onclick = check;
+    if (saved.answers[part.key] && !/your code here/.test(ta.value)) check();
+  });
+  linkRow(body, [['Show one solution for each', () => {
+    const fb = body.querySelector('.sol') || body.appendChild(Object.assign(document.createElement('div'), { className: 'feedback ok sol' }));
+    fb.innerHTML = `<pre class="listing" style="background:transparent;border:0;padding:0">(define (f-rec n)\n  (if (&lt; n 3)\n      n\n      (+ (f-rec (- n 1))\n         (* 2 (f-rec (- n 2)))\n         (* 3 (f-rec (- n 3))))))\n\n;; a, b, c hold f(n), f(n-1), f(n-2) as the window slides up\n(define (f-iter n)\n  (f-loop 2 1 0 n))\n(define (f-loop a b c count)\n  (if (= count 0)\n      c\n      (f-loop (+ a (* 2 b) (* 3 c)) a b (- count 1))))</pre>`;
+  }]]);
+  update();
+}
+
+function renderEx112(body, id) {
+  para(body, 'Write <code>(pascal row col)</code> that computes an element of Pascal\'s triangle by a recursive process. The edges are 1 and each inside number is the sum of the two above it. Rows and columns can count from 0 or from 1; the tests accept either.');
+  listing(body, '        1\n       1 1\n      1 2 1\n     1 3 3 1\n    1 4 6 4 1');
+  const wrap = document.createElement('div'); wrap.style.display = 'grid'; wrap.style.gap = '8px';
+  wrap.innerHTML = `<textarea rows="6" spellcheck="false" aria-label="Your pascal procedure" id="ex112-in"></textarea><div class="row"><button class="primary">Run the tests</button><button class="show">Show one solution</button></div><div class="feedback"></div>`;
+  body.appendChild(wrap);
+  const ta = wrap.querySelector('textarea'), fb = wrap.querySelector('.feedback');
+  ta.value = saved.answers['ex112'] || '(define (pascal row col)\n  ;; your code here\n  )';
+  ta.addEventListener('input', () => { saved.answers['ex112'] = ta.value; save(); });
+  const zero = [[[0, 0], 1], [[2, 1], 2], [[4, 0], 1], [[4, 2], 6], [[4, 4], 1], [[5, 1], 5], [[6, 3], 20]];
+  const one = zero.map(([[r, c], w]) => [[r + 1, c + 1], w]);
+  const pick = defined => { const d = [...defined].reverse().find(d => d.params && d.params.length === 2); if (!d) throw new Error('Define a procedure with two parameters, like (define (pascal row col) ...).'); return d.name; };
+  const check = () => {
+    let ok = false;
+    try {
+      const r0 = runTests(ta.value, zero, pick);
+      const r1 = r0.pass === r0.total ? null : runTests(ta.value, one, pick);
+      const best = r1 && r1.pass > r0.pass ? r1 : r0;
+      ok = best.pass === best.total;
+      fb.innerHTML = `<div style="margin-bottom:6px">${ok ? `All tests pass, counting from ${best === r0 ? 0 : 1}.` : `${best.pass} of ${best.total} tests pass.`}</div>${best.html}`;
+    } catch (err) { fb.textContent = err.message; }
+    fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+    markDone(id, ok);
+  };
+  wrap.querySelector('.primary').onclick = check;
+  wrap.querySelector('.show').onclick = () => {
+    fb.className = 'feedback ok';
+    fb.innerHTML = `Counting from 0:<pre class="listing" style="background:transparent;border:0;padding:0;margin-top:6px">(define (pascal row col)\n  (if (or (= col 0) (= col row))\n      1\n      (+ (pascal (- row 1) (- col 1))\n         (pascal (- row 1) col))))</pre>This is tree recursion, just like fib.`;
+  };
+  if (saved.answers['ex112'] && !/your code here/.test(ta.value)) check();
+}
+
+function renderEx113(body, id) {
+  para(body, 'Prove that Fib(n) is the closest integer to φⁿ/√5, where φ = (1 + √5)/2. Hint: let ψ = (1 − √5)/2 and use induction to prove Fib(n) = (φⁿ − ψⁿ)/√5.');
+  para(body, 'This one is maths, not programming, and the study guide marks it optional. Read the outline once you\'ve tried it.');
+  const out = document.createElement('div'); out.className = 'feedback ok'; out.hidden = true;
+  out.innerHTML = `<ol style="margin:0;padding-left:20px;display:grid;gap:6px">
+    <li>φ and ψ are the two roots of x² = x + 1, so φ² = φ + 1 and ψ² = ψ + 1. Multiply by φⁿ⁻² (or ψⁿ⁻²): φⁿ = φⁿ⁻¹ + φⁿ⁻², and the same for ψ.</li>
+    <li>Base cases: (φ⁰ − ψ⁰)/√5 = 0 = Fib(0), and (φ − ψ)/√5 = √5/√5 = 1 = Fib(1).</li>
+    <li>Induction step: (φⁿ − ψⁿ)/√5 = (φⁿ⁻¹ − ψⁿ⁻¹)/√5 + (φⁿ⁻² − ψⁿ⁻²)/√5 = Fib(n−1) + Fib(n−2) = Fib(n).</li>
+    <li>|ψ| ≈ 0.618 &lt; 1, so |ψⁿ/√5| &lt; 1/√5 ≈ 0.447 &lt; ½. Fib(n) is within ½ of φⁿ/√5, which makes it the closest integer.</li>
+  </ol><p style="margin-top:8px">This is why tree-recursive fib takes Θ(φⁿ) steps: the number of leaves in its tree is Fib(n + 1). You can see the 1.618 ratio in the growth table above.</p>`;
+  body.appendChild(out);
+  const row = document.createElement('div'); row.className = 'row';
+  row.innerHTML = `<button class="show">Show the proof outline</button><button class="mark"></button>`;
+  body.appendChild(row);
+  row.querySelector('.show').onclick = () => { out.hidden = !out.hidden; row.querySelector('.show').textContent = out.hidden ? 'Show the proof outline' : 'Hide the proof outline'; };
+  const paintMark = () => { row.querySelector('.mark').textContent = saved.done[id] ? 'Mark as not done' : 'Mark as done'; };
+  row.querySelector('.mark').onclick = () => { markDone(id, !saved.done[id]); paintMark(); };
+  paintMark();
+}
+
+function ccTree(amount, kinds) {
+  const den = [0, 1, 5, 10, 25, 50];
+  if (amount === 0) return { a: amount, k: kinds, v: 1 };
+  if (amount < 0 || kinds === 0) return { a: amount, k: kinds, v: 0 };
+  const l = ccTree(amount, kinds - 1), r = ccTree(amount - den[kinds], kinds);
+  return { a: amount, k: kinds, v: l.v + r.v, kids: [l, r] };
+}
+function treeHtml(t, depth) {
+  const label = `(cc ${t.a} ${t.k})`;
+  if (!t.kids) return `<div class="leaf ${t.v ? 'one' : 'zero'}">${esc(label)} → ${t.v}</div>`;
+  return `<details ${depth < 4 || t.v > 0 ? 'open' : ''}><summary>${esc(label)} <span class="muted">= ${t.v}</span></summary>${t.kids.map(k => treeHtml(k, depth + 1)).join('')}</details>`;
+}
+function countNodes(t) { return 1 + (t.kids ? countNodes(t.kids[0]) + countNodes(t.kids[1]) : 0); }
+function renderEx114(body, id) {
+  const t = ccTree(11, 5);
+  para(body, `Here is the tree of <code>(count-change 11)</code>: ${countNodes(t)} calls to cc. Leaves in green found a way to make change; grey leaves are dead ends. Branches that find nothing start collapsed.`);
+  const tree = document.createElement('div'); tree.className = 'cctree'; tree.innerHTML = treeHtml(t, 0); body.appendChild(tree);
+  const update = () => markDone(id, [w, s, tm].every(q => q()));
+  const w = numQ(body, 'ex114-w', 'How many ways are there to change 11 cents?', N(4), '4: 11 pennies, 5 + 6 pennies, 5 + 5 + 1, and 10 + 1', update);
+  const s = mcq(body, 'ex114-s', 'How does the <strong>space</strong> used by <code>(count-change n)</code> grow?', ['Θ(log n)', 'Θ(n)', 'Θ(n²)'], 1,
+    'Space is the depth of the tree. The deepest path takes the penny branch every time, n levels down, so Θ(n).', update);
+  const tm = mcq(body, 'ex114-t', 'How does the <strong>number of steps</strong> grow, with 5 kinds of coins?', ['Θ(n)', 'Θ(n⁵)', 'Θ(2ⁿ)'], 1,
+    'With only pennies, (cc n 1) takes Θ(n) steps. (cc n 2) calls (cc m 1) for about n/5 values of m, so Θ(n²). Each extra coin kind multiplies by another factor of n, giving Θ(n⁵). It\'s polynomial, not exponential, because each coin is subtracted a fixed amount.', update);
+  linkRow(body, [['Measure count-change growth', () => { selectGrowth('count-change'); $('growth').scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth' }); }]]);
+  update();
+}
+
+function renderEx115(body, id) {
+  para(body, 'sin x ≈ x for small x, and sin x = 3 sin(x/3) − 4 sin³(x/3). This procedure uses both:');
+  listing(body, '(define (cube x) (* x x x))\n(define (p x) (- (* 3 x) (* 4 (cube x))))\n(define (sine angle)\n  (if (not (> (abs angle) 0.1))\n      angle\n      (p (sine (/ angle 3.0)))))');
+  const update = () => markDone(id, a() && b());
+  const a = numQ(body, 'ex115-a', 'How many times is <code>p</code> applied for <code>(sine 12.15)</code>?', N(5), '5. 12.15 is divided by 3 five times before it drops to 0.05, which is at most 0.1', update);
+  const b = mcq(body, 'ex115-b', 'What is the order of growth in space and in number of steps for <code>(sine a)</code>?', ['Θ(a) for both', 'Θ(log a) for both', 'Θ(log a) steps, Θ(1) space'], 1,
+    'Each call divides the angle by 3, so it takes about log₃(10a) calls to get below 0.1. Each call leaves a p waiting outside, so space grows with the number of calls too: Θ(log a) for both.', update);
+  linkRow(body, [['Step through (sine 12.15)', () => stepThrough('(sine 12.15)')]]);
+  update();
+}
+
+EXERCISES.forEach(exCard);
+renderProgress();
+loadExample(EXAMPLES[0]);
+selectGrowth('fib');
+
+$('reset-progress').onclick = () => { $('reset-confirm').hidden = false; };
+$('reset-no').onclick = () => { $('reset-confirm').hidden = true; };
+$('reset-yes').onclick = () => {
+  saved = { answers: {}, done: {} }; save();
+  $('ex-list').innerHTML = ''; EXERCISES.forEach(exCard); renderProgress();
+  $('reset-confirm').hidden = true;
+};
+</script>
+
+</body>
+</html>

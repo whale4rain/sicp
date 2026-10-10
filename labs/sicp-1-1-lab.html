@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>SICP 1.1 Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; the stepper is a lab bench (controls over a numbered trace), exercises below as worksheet cards. */
+:root {
+  --bg: #F2F4F1; --surface: #FFFFFF; --sunk: #F7F8F5; --ink: #1A2230; --muted: #5B6573; --line: #D8DDD6;
+  --accent: #1E58B8; --accent-ink: #FFFFFF; --accent-soft: #E3ECFA;
+  --mark: #FFE27A; --mark-ink: #1A2230;
+  --good: #1D7A4B; --good-soft: #E1F2E8; --bad: #B3261E; --bad-soft: #FBE7E5;
+  --p0: #1E58B8; --p1: #9440B3; --p2: #1D7A4B; --p3: #B0621B;
+  --f-display: "Literata", Georgia, "Times New Roman", serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-code: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11151B; --surface: #181D25; --sunk: #141920; --ink: #E5E8ED; --muted: #98A2B1; --line: #2A313C;
+  --accent: #74A6FF; --accent-ink: #0B1324; --accent-soft: #1C2A44;
+  --mark: #5B4A10; --mark-ink: #FFF2C4;
+  --good: #5FCB92; --good-soft: #15291F; --bad: #FF8E80; --bad-soft: #33191A;
+  --p0: #74A6FF; --p1: #CD98E8; --p2: #5FCB92; --p3: #E8A86A; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #11151B; --surface: #181D25; --sunk: #141920; --ink: #E5E8ED; --muted: #98A2B1; --line: #2A313C;
+  --accent: #74A6FF; --accent-ink: #0B1324; --accent-soft: #1C2A44;
+  --mark: #5B4A10; --mark-ink: #FFF2C4;
+  --good: #5FCB92; --good-soft: #15291F; --bad: #FF8E80; --bad-soft: #33191A;
+  --p0: #74A6FF; --p1: #CD98E8; --p2: #5FCB92; --p3: #E8A86A; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--f-body); }
+.wrap { max-width: 860px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 64px; display: grid; gap: 40px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 650; text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: clamp(30px, 6vw, 42px); letter-spacing: -0.01em; }
+h2 { font-size: 24px; }
+h3 { font-size: 18px; }
+p { margin: 0; max-width: 66ch; }
+code, pre, .code { font-family: var(--f-code); font-size: 14px; }
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.muted { color: var(--muted); }
+a { color: var(--accent); }
+
+header { display: grid; gap: 12px; }
+.lede { color: var(--muted); font-size: 16px; }
+.progress { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; }
+.pip { font: 500 12px var(--f-code); padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); background: var(--surface); text-decoration: none; }
+.pip.done { background: var(--good-soft); border-color: transparent; color: var(--good); }
+.progress .count { font-size: 13px; color: var(--muted); margin-left: 4px; }
+
+section { display: grid; gap: 16px; }
+.sec-head { display: grid; gap: 6px; }
+
+.bench { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 13px var(--f-code); padding: 5px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--sunk); color: var(--ink); cursor: pointer; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+textarea, input[type="text"] { font: 14px/1.45 var(--f-code); color: var(--ink); background: var(--sunk); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; width: 100%; min-width: 0; resize: vertical; }
+textarea:focus, input:focus, button:focus-visible, .chip:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.expr-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: start; }
+@media (max-width: 520px) { .expr-row { grid-template-columns: 1fr; } }
+button { font: 500 14px var(--f-body); border-radius: 6px; padding: 7px 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--accent); }
+button:disabled { opacity: 0.45; cursor: default; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; background: var(--surface); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.blurb { font-size: 14px; background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; }
+.blurb:empty { display: none; }
+
+.trace { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; max-height: 560px; overflow-y: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--sunk); }
+.trace li { display: grid; grid-template-columns: 2.6em 1fr; gap: 10px; padding: 10px 12px; border-top: 1px solid var(--line); }
+.trace li:first-child { border-top: 0; }
+.trace .n { font: 12px var(--f-code); color: var(--muted); text-align: right; padding-top: 2px; font-variant-numeric: tabular-nums; }
+.trace .body { min-width: 0; display: grid; gap: 5px; }
+.trace pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
+.note { font-size: 13.5px; color: var(--muted); display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.tag { font: 500 11px var(--f-code); text-transform: uppercase; letter-spacing: 0.06em; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line); color: var(--ink); background: var(--surface); }
+.tag.apply { color: var(--p1); } .tag.prim { color: var(--p2); } .tag.if, .tag.cond, .tag.logic { color: var(--p3); } .tag.lookup { color: var(--p0); }
+.note.final { color: var(--good); font-weight: 500; }
+.note.err { color: var(--bad); font-weight: 500; }
+.note.loop { color: var(--bad); }
+.trace li.latest { background: var(--surface); }
+mark.redex { background: var(--mark); color: var(--mark-ink); border-radius: 3px; padding: 1px 0; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.d0 { color: var(--p0); } .d1 { color: var(--p1); } .d2 { color: var(--p2); } .d3 { color: var(--p3); }
+.kw { font-weight: 600; } .numv { color: var(--ink); } .boolv { color: var(--p3); font-weight: 500; }
+.stats { font: 12.5px var(--f-code); color: var(--muted); font-variant-numeric: tabular-nums; }
+details.defs summary { cursor: pointer; font-weight: 500; font-size: 14px; }
+details.defs[open] summary { margin-bottom: 8px; }
+.defs-err { color: var(--bad); font-size: 13px; }
+.kbd { font: 11px var(--f-code); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+
+.ex { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 16px; display: grid; gap: 14px; scroll-margin-top: 16px; }
+.ex-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.state { font: 500 12px var(--f-code); padding: 2px 8px; border-radius: 999px; background: var(--sunk); color: var(--muted); }
+.state.done { background: var(--good-soft); color: var(--good); }
+.qtable { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.qrow { display: grid; grid-template-columns: minmax(0, 1fr) 9rem 1.6rem; gap: 10px; align-items: center; padding: 7px 10px; border-top: 1px solid var(--line); background: var(--surface); }
+.qrow:first-child { border-top: 0; }
+.qrow.def { background: var(--sunk); }
+.qrow .code { overflow-wrap: anywhere; min-width: 0; }
+.qrow input { padding: 5px 8px; }
+.qrow .mark { text-align: center; font-weight: 600; }
+.qrow .reveal { grid-column: 1 / -1; font-size: 13px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+@media (max-width: 520px) { .qrow { grid-template-columns: minmax(0, 1fr) 6.5rem 1.4rem; } }
+.ok { color: var(--good); } .no { color: var(--bad); }
+.linkbtn { border: 0; background: none; padding: 0; color: var(--accent); font: 500 13px var(--f-body); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.feedback { font-size: 14px; border-radius: 8px; padding: 10px 12px; }
+.feedback:empty { display: none; }
+.feedback.ok { background: var(--good-soft); color: var(--ink); }
+.feedback.no { background: var(--bad-soft); color: var(--ink); }
+.mcq { display: grid; gap: 8px; }
+.mcq .opts { display: grid; gap: 6px; }
+.opt { text-align: left; font-weight: 400; display: flex; gap: 10px; align-items: baseline; }
+.opt .letter { font: 500 12px var(--f-code); color: var(--muted); }
+.opt.right { border-color: var(--good); background: var(--good-soft); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.why { font-size: 14px; color: var(--muted); }
+.why:empty { display: none; }
+.results { font: 13px var(--f-code); display: grid; gap: 2px; }
+pre.listing { margin: 0; background: var(--sunk); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
+.resetbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; }
+footer { color: var(--muted); font-size: 13.5px; display: grid; gap: 8px; }
+@media (prefers-reduced-motion: no-preference) { .trace li.latest { animation: fade .25s ease-out; } @keyframes fade { from { background: var(--accent-soft); } } }
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">SICP · Week 1 · Section 1.1</div>
+  <h1>SICP 1.1 Lab</h1>
+  <p class="lede">Watch Scheme evaluate one step at a time using the book's substitution model, then check yourself on exercises 1.1 to 1.6. Your answers are saved in this browser.</p>
+  <nav class="progress" id="progress" aria-label="Exercise progress"></nav>
+</header>
+
+<section id="stepper">
+  <div class="sec-head">
+    <h2>Substitution stepper</h2>
+    <p class="muted">Pick an example or type your own. The highlighted part is what changes on the next step. Press <span class="kbd">→</span> to step when you're not typing.</p>
+  </div>
+  <div class="bench">
+    <div class="chips" id="examples"></div>
+    <div class="expr-row">
+      <input type="text" id="expr" spellcheck="false" autocomplete="off" aria-label="Expression to evaluate" value="(abs -3)">
+      <button class="primary" id="load">Start</button>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Evaluation order">
+        <button id="ord-app" aria-pressed="true">Applicative order</button>
+        <button id="ord-norm" aria-pressed="false">Normal order</button>
+      </div>
+      <div class="row">
+        <button id="back">Back</button>
+        <button id="step" class="primary">Step</button>
+        <button id="run">Run to end</button>
+      </div>
+    </div>
+    <div class="blurb" id="blurb"></div>
+    <ol class="trace" id="trace" aria-live="polite"></ol>
+    <div class="stats" id="stats"></div>
+    <details class="defs">
+      <summary>Definitions in scope</summary>
+      <div style="display:grid;gap:8px">
+        <textarea id="defs" rows="13" spellcheck="false" aria-label="Definitions"></textarea>
+        <div class="row"><button id="apply-defs">Use these definitions</button><button id="reset-defs">Restore the defaults</button><span class="defs-err" id="defs-err"></span></div>
+        <p class="muted" style="font-size:13px">Built in: + - * / = &lt; &gt; &lt;= &gt;= min max remainder quotient even? odd? zero? not, plus the special forms if, cond, and, or.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<section id="exercises">
+  <div class="sec-head">
+    <h2>Exercises 1.1 to 1.6</h2>
+    <p class="muted">Answer first, then use “Step through it” to see why. 1.7 and 1.8 need floating-point square roots, so do those in DrRacket.</p>
+  </div>
+  <div id="ex-list" style="display:grid;gap:16px"></div>
+</section>
+
+<footer>
+  <div class="resetbar"><button id="reset-progress">Clear my answers</button><span id="reset-confirm" hidden>This clears every saved answer. <button id="reset-yes">Clear them</button> <button id="reset-no">Keep them</button></span></div>
+  <p>The stepper follows section 1.1.5: it rewrites the whole expression each step, the way you would on paper. Real Scheme uses environments instead (chapter 3), but the answers match for everything in chapter 1.</p>
+</footer>
+</div>
+
+<script>
+// ---- Scheme subset for SICP 1.1: parser, numbers, substitution-model stepper ----
+const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) { [a, b] = [b, a % b]; } return a; };
+function N(n, d = 1) {
+  if (d === 0) throw new Error('Division by zero.');
+  if (d < 0) { n = -n; d = -d; }
+  const g = gcd(n, d) || 1; n /= g; d /= g;
+  if (!Number.isSafeInteger(n) || !Number.isSafeInteger(d)) return F(n / d);
+  return { t: 'num', ex: true, n, d };
+}
+const F = v => ({ t: 'num', ex: false, v });
+const B = v => ({ t: 'bool', v });
+const S = v => ({ t: 'sym', v });
+const L = items => ({ t: 'list', items });
+const V = { t: 'void' };
+
+const fv = a => a.ex ? a.n / a.d : a.v;
+const add = (a, b) => a.ex && b.ex ? N(a.n * b.d + b.n * a.d, a.d * b.d) : F(fv(a) + fv(b));
+const sub = (a, b) => a.ex && b.ex ? N(a.n * b.d - b.n * a.d, a.d * b.d) : F(fv(a) - fv(b));
+const mul = (a, b) => a.ex && b.ex ? N(a.n * b.n, a.d * b.d) : F(fv(a) * fv(b));
+const div = (a, b) => {
+  if (fv(b) === 0) throw new Error('Division by zero.');
+  return a.ex && b.ex ? N(a.n * b.d, a.d * b.n) : F(fv(a) / fv(b));
+};
+const cmp = (a, b) => a.ex && b.ex ? Math.sign(a.n * b.d - b.n * a.d) : Math.sign(fv(a) - fv(b));
+const isInt = a => a.ex && a.d === 1;
+
+function fmtNum(a) {
+  if (a.ex) return a.d === 1 ? String(a.n) : a.n + '/' + a.d;
+  if (!isFinite(a.v)) return a.v > 0 ? '+inf.0' : a.v < 0 ? '-inf.0' : '+nan.0';
+  const s = String(a.v);
+  return /[.e]/.test(s) ? s : s + '.0';
+}
+function show(n) {
+  switch (n.t) {
+    case 'num': return fmtNum(n);
+    case 'bool': return n.v ? '#t' : '#f';
+    case 'sym': return n.v;
+    case 'void': return '#<void>';
+    case 'list': return '(' + n.items.map(show).join(' ') + ')';
+  }
+}
+const isFalse = v => v.t === 'bool' && !v.v;
+
+// ---- parser ----
+function tokenize(src) {
+  const toks = []; let i = 0;
+  while (i < src.length) {
+    const c = src[i];
+    if (c === ';') { while (i < src.length && src[i] !== '\n') i++; continue; }
+    if (/\s/.test(c)) { i++; continue; }
+    if ('()[]'.includes(c)) { toks.push(c === '[' ? '(' : c === ']' ? ')' : c); i++; continue; }
+    if (c === "'" || c === '`') throw new Error("Quote (') arrives in chapter 2, so it isn't supported here.");
+    if (c === '"') throw new Error('Strings aren\'t needed in section 1.1, so they aren\'t supported here.');
+    let j = i; while (j < src.length && !/[\s()[\];"']/.test(src[j])) j++;
+    toks.push(src.slice(i, j)); i = j;
+  }
+  return toks;
+}
+function atom(s) {
+  if (/^[+-]?\d+$/.test(s)) return N(parseInt(s, 10));
+  let m = s.match(/^([+-]?\d+)\/(\d+)$/); if (m) return N(parseInt(m[1], 10), parseInt(m[2], 10));
+  if (/^[+-]?(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?$/.test(s)) return F(parseFloat(s));
+  if (s === '#t' || s === 'true' || s === '#true') return B(true);
+  if (s === '#f' || s === 'false' || s === '#false') return B(false);
+  return S(s);
+}
+function parseAll(src) {
+  const toks = tokenize(src); let pos = 0;
+  function one() {
+    const t = toks[pos++];
+    if (t === undefined) throw new Error('Missing a closing parenthesis.');
+    if (t === ')') throw new Error('There is an extra closing parenthesis.');
+    if (t !== '(') return atom(t);
+    const items = [];
+    while (toks[pos] !== ')') { if (pos >= toks.length) throw new Error('Missing a closing parenthesis.'); items.push(one()); }
+    pos++;
+    return L(items);
+  }
+  const out = []; while (pos < toks.length) out.push(one());
+  return out;
+}
+function parseOne(src) {
+  const all = parseAll(src);
+  if (all.length === 0) throw new Error('Type an expression first.');
+  if (all.length > 1) throw new Error('That is more than one expression. Put definitions in the Definitions box.');
+  return all[0];
+}
+
+// ---- primitives ----
+function needNums(name, args) {
+  for (const a of args) if (a.t !== 'num') throw new Error(`${name} expects numbers, but was given ${show(a)}.`);
+}
+function needInts(name, args) {
+  for (const a of args) if (!isInt(a)) throw new Error(`${name} expects integers, but was given ${show(a)}.`);
+}
+const chain = test => (args) => { for (let i = 0; i + 1 < args.length; i++) if (!test(cmp(args[i], args[i + 1]))) return B(false); return B(true); };
+const PRIMS = {
+  '+': { num: true, fn: a => a.reduce(add, N(0)) },
+  '-': { num: true, min: 1, fn: a => a.length === 1 ? sub(N(0), a[0]) : a.slice(1).reduce(sub, a[0]) },
+  '*': { num: true, fn: a => a.reduce(mul, N(1)) },
+  '/': { num: true, min: 1, fn: a => a.length === 1 ? div(N(1), a[0]) : a.slice(1).reduce(div, a[0]) },
+  '=': { num: true, min: 1, fn: chain(c => c === 0) },
+  '<': { num: true, min: 1, fn: chain(c => c < 0) },
+  '>': { num: true, min: 1, fn: chain(c => c > 0) },
+  '<=': { num: true, min: 1, fn: chain(c => c <= 0) },
+  '>=': { num: true, min: 1, fn: chain(c => c >= 0) },
+  'min': { num: true, min: 1, fn: a => a.reduce((x, y) => cmp(y, x) < 0 ? y : x) },
+  'max': { num: true, min: 1, fn: a => a.reduce((x, y) => cmp(y, x) > 0 ? y : x) },
+  'remainder': { num: true, min: 2, max: 2, int: true, fn: ([a, b]) => { if (b.n === 0) throw new Error('remainder: division by zero.'); return N(a.n % b.n); } },
+  'quotient': { num: true, min: 2, max: 2, int: true, fn: ([a, b]) => { if (b.n === 0) throw new Error('quotient: division by zero.'); return N(Math.trunc(a.n / b.n)); } },
+  'even?': { num: true, min: 1, max: 1, int: true, fn: ([a]) => B(a.n % 2 === 0) },
+  'odd?': { num: true, min: 1, max: 1, int: true, fn: ([a]) => B(a.n % 2 !== 0) },
+  'zero?': { num: true, min: 1, max: 1, fn: ([a]) => B(fv(a) === 0) },
+  'not': { min: 1, max: 1, fn: ([a]) => B(isFalse(a)) },
+};
+function applyPrim(name, args) {
+  const p = PRIMS[name];
+  if (p.min !== undefined && args.length < p.min) throw new Error(`${name} needs at least ${p.min} argument${p.min > 1 ? 's' : ''}.`);
+  if (p.max !== undefined && args.length > p.max) throw new Error(`${name} takes ${p.max} argument${p.max > 1 ? 's' : ''}, but was given ${args.length}.`);
+  if (p.num) needNums(name, args);
+  if (p.int) needInts(name, args);
+  return p.fn(args);
+}
+
+// ---- environments ----
+const SPECIAL = new Set(['if', 'cond', 'and', 'or', 'define', 'else', 'lambda', 'let', 'begin', 'set!', 'quote']);
+const newEnv = base => ({ vars: new Map(base ? base.vars : []), procs: new Map(base ? base.procs : []) });
+
+function loadDefs(src, base) {
+  const env = newEnv(base);
+  const defined = [];
+  for (const form of parseAll(src)) {
+    if (!(form.t === 'list' && form.items[0] && form.items[0].t === 'sym' && form.items[0].v === 'define'))
+      throw new Error(`Only define forms go here, but found ${show(form)}.`);
+    defined.push(defineForm(form, env));
+  }
+  return { env, defined };
+}
+function defineForm(form, env) {
+  const [, target, ...body] = form.items;
+  if (!target) throw new Error('define needs a name.');
+  if (body.length === 0) throw new Error(`define ${show(target)} has no body.`);
+  if (target.t === 'list') {
+    const [nm, ...ps] = target.items;
+    if (!nm || nm.t !== 'sym') throw new Error('A procedure definition looks like (define (name params...) body).');
+    for (const p of ps) if (p.t !== 'sym') throw new Error(`Parameter ${show(p)} must be a name.`);
+    if (SPECIAL.has(nm.v)) throw new Error(`${nm.v} is a special form; pick another name.`);
+    if (body.length > 1) {
+      if (body.some(b => b.t === 'list' && b.items[0] && b.items[0].t === 'sym' && b.items[0].v === 'define'))
+        throw new Error(`${nm.v} uses internal definitions (block structure, 1.1.8). Define helpers at the top level instead.`);
+      throw new Error(`${nm.v} has more than one expression in its body. Section 1.1 procedures have exactly one.`);
+    }
+    env.procs.set(nm.v, { params: ps.map(p => p.v), body: body[0] });
+    env.vars.delete(nm.v);
+    return { name: nm.v, params: ps.map(p => p.v) };
+  }
+  if (target.t !== 'sym') throw new Error('define needs a name.');
+  if (body.length > 1) throw new Error(`(define ${target.v} ...) takes exactly one value.`);
+  env.vars.set(target.v, evaluate(body[0], env));
+  env.procs.delete(target.v);
+  return { name: target.v };
+}
+
+// ---- small-step reduction ----
+function isValue(e, env) {
+  switch (e.t) {
+    case 'num': case 'bool': case 'void': return true;
+    case 'sym': return !env.vars.has(e.v) && (env.procs.has(e.v) || !!PRIMS[e.v]);
+    default: return false;
+  }
+}
+const replaceChild = (e, i, n) => L(e.items.map((c, j) => j === i ? n : c));
+function inside(e, i, env, ord, prefix) {
+  const r = reduce(e.items[i], env, ord);
+  return { ...r, node: replaceChild(e, i, r.node), path: [i, ...r.path], note: (prefix || '') + r.note };
+}
+function subst(e, map) {
+  if (e.t === 'sym') return map.has(e.v) ? map.get(e.v) : e;
+  if (e.t === 'list') return L(e.items.map(c => subst(c, map)));
+  return e;
+}
+function clauseBody(c) {
+  const body = c.items.slice(1);
+  if (body.length > 1) throw new Error('This stepper supports one expression per cond clause.');
+  return body[0];
+}
+function reduce(e, env, ord) {
+  if (isValue(e, env)) return null;
+  if (e.t === 'sym') {
+    if (env.vars.has(e.v)) return { node: env.vars.get(e.v), path: [], kind: 'lookup', note: `Look up the name ${e.v}. Its value is ${show(env.vars.get(e.v))}.` };
+    if (SPECIAL.has(e.v)) throw new Error(`${e.v} is a special form, so it can't be used as a value on its own.`);
+    throw new Error(`Unbound variable: ${e.v}. Nothing is defined with that name.`);
+  }
+  if (e.items.length === 0) throw new Error('() is an empty combination: there is no operator to apply.');
+  const h = e.items[0];
+  if (h.t === 'sym' && SPECIAL.has(h.v) && !env.vars.has(h.v)) return reduceSpecial(e, env, ord);
+  if (!isValue(h, env)) return inside(e, 0, env, ord);
+  if (h.t !== 'sym') throw new Error(`${show(h)} is not a procedure, so ${show(e)} can't be applied.`);
+  const name = h.v, args = e.items.slice(1);
+  const proc = env.procs.get(name);
+  if (proc) {
+    if (args.length !== proc.params.length)
+      throw new Error(`${name} takes ${proc.params.length} argument${proc.params.length === 1 ? '' : 's'} but was given ${args.length}.`);
+    if (ord === 'applicative') {
+      const i = args.findIndex(a => !isValue(a, env));
+      if (i >= 0) return inside(e, i + 1, env, ord);
+    }
+    const map = new Map(proc.params.map((p, i) => [p, args[i]]));
+    const pairs = proc.params.map((p, i) => `${p} = ${show(args[i])}`).join(', ');
+    const how = ord === 'normal' && args.some(a => !isValue(a, env)) ? ' The arguments go in unevaluated (normal order).' : '';
+    return {
+      node: subst(proc.body, map), path: [], kind: 'apply',
+      note: proc.params.length
+        ? `Apply ${name}: take its body ${show(proc.body)} and substitute ${pairs}.${how}`
+        : `Apply ${name}: it has no parameters, so it becomes its body ${show(proc.body)}.`,
+    };
+  }
+  const i = args.findIndex(a => !isValue(a, env));
+  if (i >= 0) return inside(e, i + 1, env, ord);
+  const val = applyPrim(name, args);
+  return { node: val, path: [], kind: 'prim', note: `${name} is a primitive, so compute it directly: ${show(e)} is ${show(val)}.` };
+}
+function reduceSpecial(e, env, ord) {
+  const h = e.items[0].v;
+  if (h === 'if') {
+    if (e.items.length < 3 || e.items.length > 4) throw new Error('if looks like (if test consequent alternative).');
+    const p = e.items[1];
+    if (!isValue(p, env)) return inside(e, 1, env, ord);
+    if (!isFalse(p)) return { node: e.items[2], path: [], kind: 'if', note: `if: the test is ${show(p)}, so the result is the consequent ${show(e.items[2])}. The alternative${e.items[3] ? ' ' + show(e.items[3]) : ''} is thrown away without being evaluated.` };
+    return { node: e.items[3] || V, path: [], kind: 'if', note: `if: the test is #f, so the result is the alternative ${e.items[3] ? show(e.items[3]) : '(none)'}. The consequent ${show(e.items[2])} is thrown away without being evaluated.` };
+  }
+  if (h === 'cond') {
+    const clauses = e.items.slice(1);
+    if (clauses.length === 0) return { node: V, path: [], kind: 'cond', note: 'cond: no clause matched, so the value is unspecified.' };
+    const c = clauses[0];
+    if (c.t !== 'list' || c.items.length === 0) throw new Error(`Each cond clause looks like (test expression), but found ${show(c)}.`);
+    const test = c.items[0];
+    if (test.t === 'sym' && test.v === 'else') {
+      const b = clauseBody(c);
+      if (!b) throw new Error('else needs an expression.');
+      return { node: b, path: [], kind: 'cond', note: `cond: reached the else clause, so the whole cond becomes ${show(b)}.` };
+    }
+    if (!isValue(test, env)) {
+      const r = reduce(test, env, ord);
+      return { ...r, node: replaceChild(e, 1, replaceChild(c, 0, r.node)), path: [1, 0, ...r.path], note: (r.path.length === 0 && r.kind !== 'lookup' ? 'cond evaluates the first remaining clause\'s test. ' : '') + r.note };
+    }
+    if (isFalse(test)) {
+      return { node: L([e.items[0], ...clauses.slice(1)]), path: [1], kind: 'cond', note: `cond: this clause's test is #f, so drop the clause and try the next one.${clauses.length === 1 ? ' That was the last clause.' : ''}` };
+    }
+    const b = c.items.length === 1 ? test : clauseBody(c);
+    const rest = clauses.length > 1 ? ` The ${clauses.length - 1} later clause${clauses.length > 2 ? 's are' : ' is'} never looked at.` : '';
+    return { node: b, path: [], kind: 'cond', note: `cond: this clause's test is ${show(test)}, so the whole cond becomes ${show(b)}.${rest}` };
+  }
+  if (h === 'and' || h === 'or') {
+    const args = e.items.slice(1);
+    if (args.length === 0) return { node: B(h === 'and'), path: [], kind: 'logic', note: `(${h}) with no operands is ${h === 'and' ? '#t' : '#f'}.` };
+    const a = args[0];
+    if (!isValue(a, env)) return inside(e, 1, env, ord);
+    const stop = h === 'and' ? isFalse(a) : !isFalse(a);
+    if (stop) return { node: a, path: [], kind: 'logic', note: `${h}: the operand is ${show(a)}, so ${h} stops here with ${show(a)}.${args.length > 1 ? ' The remaining operands are never evaluated.' : ''}` };
+    if (args.length === 1) return { node: a, path: [], kind: 'logic', note: `${h}: that was the last operand, so its value ${show(a)} is the result.` };
+    return { node: L([e.items[0], ...args.slice(1)]), path: [1], kind: 'logic', note: `${h}: ${show(a)} ${h === 'and' ? 'is true' : 'is #f'}, so drop it and check the next operand.` };
+  }
+  if (h === 'define') throw new Error('define goes in the Definitions box, not inside an expression.');
+  if (h === 'lambda' || h === 'let') throw new Error(`${h} arrives in section 1.3. This stepper covers section 1.1.`);
+  if (h === 'else') throw new Error('else only works as the test of the last cond clause.');
+  throw new Error(`${h} isn't supported in this section 1.1 stepper.`);
+}
+function evaluate(e, env, limit = 50000) {
+  let cur = e;
+  for (let i = 0; i < limit; i++) {
+    const r = reduce(cur, env, 'applicative');
+    if (!r) return cur;
+    cur = r.node;
+    if (i % 500 === 0 && show(cur).length > 20000) throw new Error('The expression keeps growing. This looks like infinite recursion.');
+  }
+  throw new Error(`Still running after ${limit} steps. This looks like infinite recursion.`);
+}
+function numEq(a, b) {
+  if (a.t !== 'num' || b.t !== 'num') return false;
+  if (a.ex && b.ex) return a.n === b.n && a.d === b.d;
+  return Math.abs(fv(a) - fv(b)) < 1e-9;
+}
+if (typeof module !== 'undefined') module.exports = { parseAll, parseOne, loadDefs, reduce, evaluate, show, numEq, N, B, atom };
+
+// ---------------- UI ----------------
+const PRELUDE = `; From section 1.1.4
+(define (square x) (* x x))
+(define (sum-of-squares x y) (+ (square x) (square y)))
+(define (f a) (sum-of-squares (+ a 1) (* a 2)))
+
+; 1.1.6: abs with cond, and with if
+(define (abs x)
+  (cond ((> x 0) x)
+        ((= x 0) 0)
+        ((< x 0) (- x))))
+(define (abs2 x) (if (< x 0) (- x) x))
+
+; Exercise 1.1
+(define a 3)
+(define b (+ a 1))
+
+; Exercise 1.4
+(define (a-plus-abs-b a b) ((if (> b 0) + -) a b))
+
+; Exercise 1.5
+(define (p) (p))
+(define (test x y) (if (= x 0) 0 y))
+
+; Exercise 1.6 (sqrt-iter simplified away)
+(define (new-if predicate then-clause else-clause)
+  (cond (predicate then-clause)
+        (else else-clause)))`;
+
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const QUIZ_ENV = loadDefs(PRELUDE).env;
+
+// ---- saved progress ----
+const KEY = 'sicp-1-1-lab-v1';
+let saved = { answers: {}, done: {} };
+try { const raw = localStorage.getItem(KEY); if (raw) saved = Object.assign(saved, JSON.parse(raw)); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} };
+
+// ---- stepper ----
+const EXAMPLES = [
+  { label: '(abs -3)', expr: '(abs -3)', ord: 'applicative', blurb: 'cond under the hood: it checks one clause at a time, top to bottom. A clause whose test is #f is dropped. The first true test replaces the whole cond with that clause\'s expression, and later clauses are never evaluated.' },
+  { label: '(abs2 -3)', expr: '(abs2 -3)', ord: 'applicative', blurb: 'if is the two-case cond. It evaluates the test first, then keeps exactly one branch.' },
+  { label: '(sum-of-squares 3 4)', expr: '(sum-of-squares 3 4)', ord: 'applicative', blurb: 'The book\'s first substitution example (1.1.5). Applying a compound procedure means: substitute the arguments into its body.' },
+  { label: '(f 5)', expr: '(f 5)', ord: 'applicative', blurb: 'The book traces this twice. Run it here, then switch to normal order and compare: same answer, different steps.' },
+  { label: '(square (+ 2 3))', expr: '(square (+ 2 3))', ord: 'normal', blurb: 'Study-guide question: how many times is (+ 2 3) computed? Normal order substitutes it unevaluated, so it gets computed twice. Switch to applicative order and count again.' },
+  { label: 'Ex 1.4', expr: '(a-plus-abs-b 3 -4)', ord: 'applicative', blurb: 'Exercise 1.4: the operator of this combination is itself an if expression. It evaluates to the procedure - (or +), which is then applied.' },
+  { label: 'Ex 1.5 normal', expr: '(test 0 (p))', ord: 'normal', blurb: 'Exercise 1.5 in normal order: (p) is substituted without being evaluated, and if throws it away.' },
+  { label: 'Ex 1.5 applicative', expr: '(test 0 (p))', ord: 'applicative', blurb: 'Exercise 1.5 in applicative order: test\'s arguments are evaluated first, and evaluating (p) produces (p) again, forever.' },
+  { label: 'Ex 1.6 if', expr: '(if #t 1 (p))', ord: 'applicative', blurb: 'if is a special form: it never evaluates the branch it doesn\'t pick, so (p) is harmless here.' },
+  { label: 'Ex 1.6 new-if', expr: '(new-if #t 1 (p))', ord: 'applicative', blurb: 'new-if is an ordinary procedure, so all three arguments get evaluated before its cond ever runs. That includes (p). This is exactly why sqrt-iter with new-if never stops.' },
+];
+const KIND_LABEL = { apply: 'substitute', prim: 'primitive', if: 'if', cond: 'cond', logic: 'and/or', lookup: 'look up' };
+
+let env = QUIZ_ENV;
+let ord = 'applicative';
+let steps = [];
+let stopReason = '';
+
+function renderNode(n, hl, depth) {
+  if (hl && hl.length === 0) return '<mark class="redex">' + renderNode(n, null, depth) + '</mark>';
+  if (n.t === 'list') {
+    const cls = 'd' + (depth % 4);
+    const inner = n.items.map((c, i) => renderNode(c, hl && hl[0] === i ? hl.slice(1) : null, depth + 1)).join(' ');
+    return `<span class="${cls}">(</span>${inner}<span class="${cls}">)</span>`;
+  }
+  if (n.t === 'sym') return SPECIAL.has(n.v) ? `<span class="kw">${esc(n.v)}</span>` : esc(n.v);
+  if (n.t === 'bool') return `<span class="boolv">${show(n)}</span>`;
+  return `<span class="numv">${esc(show(n))}</span>`;
+}
+function makeStep(expr) {
+  try { return { expr, red: reduce(expr, env, ord) }; }
+  catch (e) { return { expr, red: null, err: e.message }; }
+}
+function startExpr(src) {
+  stopReason = '';
+  try { steps = [makeStep(parseOne(src))]; }
+  catch (e) { steps = [{ expr: null, red: null, err: e.message }]; }
+  renderTrace();
+}
+function stepOnce() {
+  const last = steps[steps.length - 1];
+  if (!last || !last.red) return false;
+  const next = makeStep(last.red.node);
+  next.kind = last.red.kind;
+  steps.push(next);
+  return true;
+}
+const isLoop = s => s.red && show(s.red.node) === show(s.expr);
+function run() {
+  stopReason = '';
+  for (let i = 0; i < 150; i++) {
+    const last = steps[steps.length - 1];
+    if (!last.red) break;
+    if (isLoop(last) && steps.length > 1 && isLoop(steps[steps.length - 2])) { stopReason = 'Stopped: the expression keeps turning into itself, so this would run forever.'; break; }
+    if (show(last.expr).length > 1500) { stopReason = 'Stopped: the expression keeps growing.'; break; }
+    stepOnce();
+    if (i === 149 && steps[steps.length - 1].red) stopReason = 'Paused after 150 more steps. Press Run again to continue.';
+  }
+  renderTrace();
+}
+function renderTrace() {
+  const ol = $('trace');
+  const html = steps.map((s, i) => {
+    const latest = i === steps.length - 1;
+    let pre = s.expr ? renderNode(s.expr, latest && s.red ? s.red.path : null, 0) : '';
+    let note = '';
+    if (latest) {
+      if (s.err) note = `<div class="note err">${esc(s.err)}</div>`;
+      else if (s.red) {
+        note = `<div class="note"><span class="tag ${s.red.kind}">${KIND_LABEL[s.red.kind]}</span><span>Next: ${esc(s.red.note)}</span></div>`;
+        if (isLoop(s)) note += `<div class="note loop">This step gives back exactly the same expression. Evaluation is going around in a circle and will never finish.</div>`;
+      } else note = `<div class="note final">Done. The value is ${esc(show(s.expr))}${s.expr.t === 'sym' ? ' (a procedure)' : ''}.</div>`;
+    } else if (steps[i + 1] && s.red) {
+      note = `<div class="note"><span class="tag ${s.red.kind}">${KIND_LABEL[s.red.kind]}</span><span>${esc(s.red.note)}</span></div>`;
+    }
+    if (!latest && s.red) pre = renderNode(s.expr, s.red.path, 0);
+    return `<li class="${latest ? 'latest' : ''}"><span class="n">${i === 0 ? 'start' : i}</span><div class="body">${pre ? `<pre>${pre}</pre>` : ''}${note}</div></li>`;
+  }).join('');
+  ol.innerHTML = html + (stopReason ? `<li><span class="n"></span><div class="body"><div class="note loop">${esc(stopReason)}</div></div></li>` : '');
+  ol.scrollTop = ol.scrollHeight;
+  const counts = { apply: 0, prim: 0 };
+  steps.forEach(s => { if (s.kind in counts) counts[s.kind]++; });
+  const n = steps.length - 1;
+  $('stats').textContent = steps[0] && steps[0].expr ? `${n} step${n === 1 ? '' : 's'} · ${counts.apply} procedure application${counts.apply === 1 ? '' : 's'} · ${counts.prim} primitive operation${counts.prim === 1 ? '' : 's'} · ${ord} order` : '';
+  const last = steps[steps.length - 1];
+  $('step').disabled = !last || !last.red;
+  $('run').disabled = !last || !last.red;
+  $('back').disabled = steps.length < 2;
+}
+function setOrd(o) {
+  ord = o;
+  $('ord-app').setAttribute('aria-pressed', o === 'applicative');
+  $('ord-norm').setAttribute('aria-pressed', o === 'normal');
+}
+function renderExamples(activeLabel) {
+  $('examples').innerHTML = EXAMPLES.map((x, i) => `<button class="chip" data-i="${i}" aria-pressed="${x.label === activeLabel}">${esc(x.label)}</button>`).join('');
+}
+function loadExample(x) {
+  $('expr').value = x.expr;
+  setOrd(x.ord);
+  $('blurb').textContent = x.blurb;
+  renderExamples(x.label);
+  startExpr(x.expr);
+}
+function stepThrough(expr, ordWanted) {
+  $('expr').value = expr;
+  setOrd(ordWanted || 'applicative');
+  const ex = EXAMPLES.find(x => x.expr === expr && x.ord === ord);
+  $('blurb').textContent = ex ? ex.blurb : '';
+  renderExamples(ex ? ex.label : null);
+  startExpr(expr);
+  $('stepper').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+}
+
+$('examples').addEventListener('click', e => { const b = e.target.closest('.chip'); if (b) loadExample(EXAMPLES[+b.dataset.i]); });
+$('load').onclick = () => { $('blurb').textContent = ''; renderExamples(null); startExpr($('expr').value); };
+$('expr').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('load').click(); } });
+$('step').onclick = () => { stopReason = ''; stepOnce(); renderTrace(); };
+$('back').onclick = () => { if (steps.length > 1) { steps.pop(); stopReason = ''; renderTrace(); } };
+$('run').onclick = run;
+$('ord-app').onclick = () => { setOrd('applicative'); startExpr($('expr').value); };
+$('ord-norm').onclick = () => { setOrd('normal'); startExpr($('expr').value); };
+document.addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input, textarea, button')) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); $('step').click(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); $('back').click(); }
+});
+$('defs').value = PRELUDE;
+$('apply-defs').onclick = () => {
+  try { env = loadDefs($('defs').value).env; $('defs-err').textContent = 'Using your definitions.'; $('defs-err').style.color = 'var(--good)'; startExpr($('expr').value); }
+  catch (e) { $('defs-err').textContent = e.message; $('defs-err').style.color = ''; }
+};
+$('reset-defs').onclick = () => { $('defs').value = PRELUDE; env = QUIZ_ENV; $('defs-err').textContent = ''; startExpr($('expr').value); };
+
+// ---------------- exercises ----------------
+const EX11 = ['10', '(+ 5 3 4)', '(- 9 1)', '(/ 6 2)', '(+ (* 2 4) (- 4 6))', '(define a 3)', '(define b (+ a 1))', '(+ a b (* a b))', '(= a b)',
+  '(if (and (> b a) (< b (* a b)))\n    b\n    a)', '(cond ((= a 4) 6)\n      ((= b 4) (+ 6 7 a))\n      (else 25))', '(+ 2 (if (> b a) b a))', '(* (cond ((> a b) a)\n         ((< a b) b)\n         (else -1))\n   (+ a 1))'];
+const EXERCISES = [
+  { id: '1.1', title: 'What does the interpreter print?', render: renderEx11 },
+  { id: '1.2', title: 'Translate into prefix form', render: renderEx12 },
+  { id: '1.3', title: 'Sum of squares of the two larger numbers', render: renderEx13 },
+  { id: '1.4', title: 'An operator that is a compound expression', render: renderEx14 },
+  { id: '1.5', title: "Ben Bitdiddle's test", render: renderEx15 },
+  { id: '1.6', title: "Alyssa's new-if", render: renderEx16 },
+];
+
+function renderProgress() {
+  const n = EXERCISES.filter(x => saved.done[x.id]).length;
+  $('progress').innerHTML = EXERCISES.map(x => `<a class="pip ${saved.done[x.id] ? 'done' : ''}" href="#ex-${x.id.replace('.', '-')}">${saved.done[x.id] ? '✓ ' : ''}${x.id}</a>`).join('') + `<span class="count">${n} of ${EXERCISES.length} done</span>`;
+  EXERCISES.forEach(x => {
+    const s = document.querySelector(`#ex-${x.id.replace('.', '-')} .state`);
+    if (s) { s.textContent = saved.done[x.id] ? 'Done' : 'Not done yet'; s.classList.toggle('done', !!saved.done[x.id]); }
+  });
+}
+function markDone(id, val) { saved.done[id] = val; save(); renderProgress(); }
+
+function exCard(x) {
+  const el = document.createElement('article');
+  el.className = 'ex'; el.id = 'ex-' + x.id.replace('.', '-');
+  el.innerHTML = `<div class="ex-head"><div><div class="eyebrow">Exercise ${x.id}</div><h3>${esc(x.title)}</h3></div><span class="state"></span></div><div class="ex-body" style="display:grid;gap:12px"></div>`;
+  $('ex-list').appendChild(el);
+  x.render(el.querySelector('.ex-body'), x.id);
+}
+
+function parseAnswer(s) {
+  s = s.trim();
+  if (!s) return null;
+  try { const v = parseOne(s); return v.t === 'num' || v.t === 'bool' ? v : null; } catch (e) { return null; }
+}
+const same = (a, b) => a && (a.t === 'bool' ? b.t === 'bool' && a.v === b.v : numEq(a, b));
+
+function renderEx11(body, id) {
+  body.innerHTML = `<p>Predict what each expression prints. Each line is evaluated in order, so a and b exist from line 6 on.</p><div class="qtable" id="ex11-table"></div><div class="row"><button class="primary" id="ex11-check">Check answers</button><span id="ex11-score" class="muted"></span></div>`;
+  const table = body.querySelector('#ex11-table');
+  const rows = [];
+  EX11.forEach((src, i) => {
+    const row = document.createElement('div');
+    if (src.startsWith('(define')) {
+      row.className = 'qrow def';
+      row.innerHTML = `<pre class="code" style="margin:0">${esc(src)}</pre><span class="muted" style="font-size:13px">defines a name</span><span></span>`;
+      table.appendChild(row); return;
+    }
+    const expected = evaluate(parseOne(src), QUIZ_ENV);
+    const key = 'ex11-' + i;
+    row.className = 'qrow';
+    row.innerHTML = `<pre class="code" style="margin:0">${esc(src)}</pre><input type="text" id="${key}" aria-label="Your answer for ${esc(src)}" spellcheck="false" autocomplete="off" placeholder="answer"><span class="mark" aria-live="polite"></span><div class="reveal" hidden></div>`;
+    const input = row.querySelector('input');
+    input.value = saved.answers[key] || '';
+    input.addEventListener('input', () => { saved.answers[key] = input.value; save(); });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') body.querySelector('#ex11-check').click(); });
+    table.appendChild(row);
+    rows.push({ row, input, expected, src, key });
+  });
+  function check(silent) {
+    let right = 0, answered = 0;
+    rows.forEach(r => {
+      const mark = r.row.querySelector('.mark'), rev = r.row.querySelector('.reveal');
+      if (!r.input.value.trim()) { mark.textContent = ''; rev.hidden = true; return; }
+      answered++;
+      const ok = same(parseAnswer(r.input.value), r.expected);
+      if (ok) right++;
+      mark.textContent = ok ? '✓' : '✗'; mark.className = 'mark ' + (ok ? 'ok' : 'no');
+      rev.hidden = false;
+      rev.innerHTML = `${ok ? '' : `<span>It prints <code>${esc(show(r.expected))}</code>.</span>`}<button class="linkbtn">Step through it</button>`;
+      rev.querySelector('button').onclick = () => stepThrough(r.src.replace(/\s+/g, ' '), 'applicative');
+    });
+    if (!silent || answered) body.querySelector('#ex11-score').textContent = `${right} of ${rows.length} right`;
+    markDone(id, right === rows.length);
+  }
+  body.querySelector('#ex11-check').onclick = () => check(false);
+  if (rows.some(r => r.input.value.trim())) check(true);
+}
+
+function renderEx12(body, id) {
+  const target = N(-37, 150);
+  body.innerHTML = `<p>Write this as one Scheme expression:</p>
+  <pre class="listing">5 + 4 + (2 − (3 − (6 + 4/5)))
+───────────────────────────────
+      3 (6 − 2)(2 − 7)</pre>
+  <textarea id="ex12-in" rows="3" spellcheck="false" aria-label="Your prefix expression" placeholder="(/ (+ 5 4 ...) ...)"></textarea>
+  <div class="row"><button class="primary" id="ex12-check">Check</button><button id="ex12-show">Show an answer</button></div>
+  <div class="feedback" id="ex12-fb"></div>`;
+  const ta = body.querySelector('#ex12-in'), fb = body.querySelector('#ex12-fb');
+  ta.value = saved.answers['ex12'] || '';
+  ta.addEventListener('input', () => { saved.answers['ex12'] = ta.value; save(); });
+  function check() {
+    let ok = false;
+    try {
+      const e = parseOne(ta.value);
+      if (e.t !== 'list') throw new Error('Write it as a combination, not just the final number.');
+      const v = evaluate(e, QUIZ_ENV);
+      ok = numEq(v, target);
+      if (ok && v.ex) fb.innerHTML = `Correct. It evaluates to <code>-37/150</code>, an exact fraction, because Scheme keeps <code>(/ 4 5)</code> exact.`;
+      else if (ok) fb.innerHTML = `Correct value, as a decimal (<code>${esc(show(v))}</code>). Write 4/5 as <code>(/ 4 5)</code> and Scheme keeps it as the exact fraction <code>-37/150</code>.`;
+      else fb.innerHTML = `Yours evaluates to <code>${esc(show(v))}</code>, but the answer should be <code>-37/150</code>. Check the nesting inside the numerator.`;
+    } catch (err) { fb.textContent = err.message; }
+    fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+    markDone(id, ok);
+  }
+  body.querySelector('#ex12-check').onclick = check;
+  body.querySelector('#ex12-show').onclick = () => {
+    fb.className = 'feedback ok';
+    fb.innerHTML = `<pre class="listing" style="background:transparent;border:0;padding:0">(/ (+ 5 4 (- 2 (- 3 (+ 6 (/ 4 5)))))\n   (* 3 (- 6 2) (- 2 7)))</pre>`;
+  };
+  if (ta.value.trim()) check();
+}
+
+function renderEx13(body, id) {
+  const TESTS = [[1, 2, 3, 13], [3, 2, 1, 13], [2, 3, 1, 13], [2, 2, 1, 8], [1, 1, 1, 2], [5, -1, 3, 34], [-3, -2, -1, 5]];
+  body.innerHTML = `<p>Define a procedure that takes three numbers and returns the sum of the squares of the two larger ones. <code>square</code> and <code>sum-of-squares</code> are already defined. Any name works; the last procedure you define with three parameters gets tested.</p>
+  <textarea id="ex13-in" rows="7" spellcheck="false" aria-label="Your procedure definition"></textarea>
+  <div class="row"><button class="primary" id="ex13-check">Run the tests</button><button id="ex13-show">Show one solution</button></div>
+  <div class="feedback" id="ex13-fb"></div>`;
+  const ta = body.querySelector('#ex13-in'), fb = body.querySelector('#ex13-fb');
+  ta.value = saved.answers['ex13'] || '(define (sum-sq-larger a b c)\n  ;; your code here\n  )';
+  ta.addEventListener('input', () => { saved.answers['ex13'] = ta.value; save(); });
+  function check() {
+    let ok = false;
+    try {
+      const { env: e2, defined } = loadDefs(ta.value, QUIZ_ENV);
+      const proc = [...defined].reverse().find(d => d.params && d.params.length === 3);
+      if (!proc) throw new Error('Define a procedure with three parameters, like (define (sum-sq-larger a b c) ...).');
+      let pass = 0;
+      const lines = TESTS.map(([x, y, z, want]) => {
+        const call = `(${proc.name} ${x} ${y} ${z})`;
+        let got, good = false;
+        try { const v = evaluate(parseOne(call), e2); got = show(v); good = numEq(v, N(want)); } catch (err) { got = err.message; }
+        if (good) pass++;
+        return `<div><span class="${good ? 'ok' : 'no'}">${good ? '✓' : '✗'}</span> ${esc(call)} → ${esc(got)}${good ? '' : `  (expected ${want})`}</div>`;
+      });
+      ok = pass === TESTS.length;
+      fb.innerHTML = `<div style="margin-bottom:6px">${ok ? 'All tests pass.' : `${pass} of ${TESTS.length} tests pass.`}${ok ? ' Ties (like 2 2 1) are the usual trap, and yours handles them.' : ''}</div><div class="results">${lines.join('')}</div>`;
+    } catch (err) { fb.textContent = err.message; }
+    fb.className = 'feedback ' + (ok ? 'ok' : 'no');
+    markDone(id, ok);
+  }
+  body.querySelector('#ex13-check').onclick = check;
+  body.querySelector('#ex13-show').onclick = () => {
+    fb.className = 'feedback ok';
+    fb.innerHTML = `One way: find the smallest and leave it out.<pre class="listing" style="background:transparent;border:0;padding:0;margin-top:6px">(define (sum-sq-larger a b c)\n  (cond ((and (<= a b) (<= a c)) (sum-of-squares b c))\n        ((and (<= b a) (<= b c)) (sum-of-squares a c))\n        (else (sum-of-squares a b))))</pre>`;
+  };
+  if (saved.answers['ex13'] && /\(define/.test(ta.value) && !/your code here/.test(ta.value)) check();
+}
+
+function mcq(body, key, q, opts, right, why, onAnswer) {
+  const wrap = document.createElement('div');
+  wrap.className = 'mcq';
+  wrap.innerHTML = `<div>${q}</div><div class="opts">${opts.map((o, i) => `<button class="opt" data-i="${i}"><span class="letter">${'ABCD'[i]}</span><span>${o}</span></button>`).join('')}</div><div class="why"></div>`;
+  body.appendChild(wrap);
+  function show_(i) {
+    wrap.querySelectorAll('.opt').forEach((b, j) => { b.classList.toggle('right', j === right && i !== undefined); b.classList.toggle('wrong', j === i && i !== right); });
+    wrap.querySelector('.why').innerHTML = i === undefined ? '' : (i === right ? '<span class="ok">Right.</span> ' : '<span class="no">Not quite.</span> ') + why;
+  }
+  wrap.querySelector('.opts').addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if (!b) return;
+    saved.answers[key] = +b.dataset.i; save(); show_(+b.dataset.i); onAnswer();
+  });
+  if (saved.answers[key] !== undefined) show_(saved.answers[key]);
+  return () => saved.answers[key] === right;
+}
+function watchBtn(body, label, expr, o) {
+  const b = document.createElement('div');
+  b.className = 'row';
+  b.innerHTML = `<button class="linkbtn">${esc(label)}</button>`;
+  b.querySelector('button').onclick = () => stepThrough(expr, o);
+  body.appendChild(b);
+}
+
+function renderEx14(body, id) {
+  body.innerHTML = `<pre class="listing">(define (a-plus-abs-b a b)\n  ((if (> b 0) + -) a b))</pre>
+  <div style="display:grid;gap:6px"><label for="ex14-v">What is <code>(a-plus-abs-b 3 -4)</code>?</label><div class="row"><input type="text" id="ex14-v" style="max-width:9rem" spellcheck="false" autocomplete="off"><button id="ex14-check">Check</button><span id="ex14-fb"></span></div></div>`;
+  const inp = body.querySelector('#ex14-v'), fb = body.querySelector('#ex14-fb');
+  inp.value = saved.answers['ex14-v'] || '';
+  let valOk = false;
+  const check = () => {
+    saved.answers['ex14-v'] = inp.value; save();
+    valOk = same(parseAnswer(inp.value), N(7));
+    fb.innerHTML = !inp.value.trim() ? '' : valOk ? '<span class="ok">✓ 7, since 3 − (−4) = 3 + |−4|</span>' : '<span class="no">✗ Not quite. b is negative, so which operator gets picked?</span>';
+    update();
+  };
+  const update = () => markDone(id, valOk && mcqOk());
+  const mcqOk = mcq(body, 'ex14-q', 'What does <code>(if (&gt; b 0) + -)</code> evaluate to?',
+    ['A number: the sum or difference of a and b', 'The procedure + or the procedure −, which is then applied to a and b', 'An error, because + and − must be applied right away'], 1,
+    'Operators are evaluated like any other expression. The if returns a procedure, and the combination then applies it to a and b. Procedures are values, which chapter 1.3 builds on.', update);
+  body.querySelector('#ex14-check').onclick = check;
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
+  watchBtn(body, 'Step through (a-plus-abs-b 3 -4)', '(a-plus-abs-b 3 -4)', 'applicative');
+  if (inp.value.trim()) check(); else update();
+}
+
+function renderEx15(body, id) {
+  body.innerHTML = `<pre class="listing">(define (p) (p))\n(define (test x y)\n  (if (= x 0) 0 y))\n\n(test 0 (p))</pre>`;
+  const update = () => markDone(id, a() && b());
+  const a = mcq(body, 'ex15-a', 'With <strong>applicative-order</strong> evaluation, what happens?',
+    ['It returns 0', 'It runs forever', 'It returns an error about p'], 1,
+    'Applicative order evaluates every operand before applying test. Evaluating (p) gives (p), which gives (p), and so on. test never even starts.', update);
+  const b = mcq(body, 'ex15-b', 'With <strong>normal-order</strong> evaluation, what happens?',
+    ['It returns 0', 'It runs forever', 'It returns an error about p'], 0,
+    '(p) is substituted into test\'s body without being evaluated. The if sees (= 0 0) is true and returns 0, so (p) is never touched.', update);
+  watchBtn(body, 'Watch it in applicative order', '(test 0 (p))', 'applicative');
+  watchBtn(body, 'Watch it in normal order', '(test 0 (p))', 'normal');
+  update();
+}
+
+function renderEx16(body, id) {
+  body.innerHTML = `<p>Alyssa writes <code>if</code> as an ordinary procedure and uses it in the square-root program from 1.1.7:</p>
+  <pre class="listing">(define (new-if predicate then-clause else-clause)\n  (cond (predicate then-clause)\n        (else else-clause)))\n\n(define (sqrt-iter guess x)\n  (new-if (good-enough? guess x)\n          guess\n          (sqrt-iter (improve guess x) x)))</pre>`;
+  const update = () => markDone(id, q());
+  const q = mcq(body, 'ex16-q', 'What happens when she computes square roots with it?',
+    ['Same answers as before', 'It recurses forever and runs out of memory', 'It fails because cond can\'t be used inside a procedure'], 1,
+    'new-if is a procedure, so Scheme evaluates all three arguments first, including (sqrt-iter (improve guess x) x). That call evaluates its own new-if arguments, which calls sqrt-iter again, with no end. The real if is a special form: it evaluates the test, then only the branch it picks.', update);
+  watchBtn(body, 'Compare: (if #t 1 (p))', '(if #t 1 (p))', 'applicative');
+  watchBtn(body, 'Compare: (new-if #t 1 (p))', '(new-if #t 1 (p))', 'applicative');
+  update();
+}
+
+EXERCISES.forEach(exCard);
+renderProgress();
+loadExample(EXAMPLES[0]);
+
+$('reset-progress').onclick = () => { $('reset-confirm').hidden = false; };
+$('reset-no').onclick = () => { $('reset-confirm').hidden = true; };
+$('reset-yes').onclick = () => {
+  saved = { answers: {}, done: {} }; save();
+  $('ex-list').innerHTML = ''; EXERCISES.forEach(exCard); renderProgress();
+  $('reset-confirm').hidden = true;
+};
+</script>
+
+</body>
+</html>

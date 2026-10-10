@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SICP Labs</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,650&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+:root { --bg: #F2F4F1; --surface: #FFFFFF; --ink: #1A2230; --muted: #5B6573; --line: #D8DDD6; --accent: #1E58B8; }
+@media (prefers-color-scheme: dark) { :root { --bg: #11151B; --surface: #181D25; --ink: #E5E8ED; --muted: #98A2B1; --line: #2A313C; --accent: #74A6FF; color-scheme: dark; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 "IBM Plex Sans", system-ui, sans-serif; }
+main { max-width: 720px; margin: 0 auto; padding: 40px 16px 64px; display: grid; gap: 20px; }
+h1 { font: 650 clamp(30px, 6vw, 40px)/1.2 "Literata", Georgia, serif; margin: 0; }
+p { margin: 0; color: var(--muted); }
+ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+a.lab { display: grid; gap: 4px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; color: var(--ink); text-decoration: none; }
+a.lab:hover, a.lab:focus-visible { border-color: var(--accent); }
+.wk { font: 12px "IBM Plex Mono", monospace; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.t { font-weight: 500; color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>SICP Labs</h1>
+  <p>Interactive pages for working through <em>Structure and Interpretation of Computer Programs</em>, one per week. Each has a Scheme stepper and checked exercises. Answers are saved in your browser.</p>
+  <ol>
+    <li><a class="lab" href="labs/sicp-1-1-lab.html"><span class="wk">Week 1 · Section 1.1</span><span class="t">SICP 1.1 Lab</span><span>Substitution-model stepper, applicative vs normal order, exercises 1.1–1.6</span></a></li>
+    <li><a class="lab" href="labs/sicp-1-2-lab.html"><span class="wk">Week 2 · Sections 1.2.1–1.2.3</span><span class="t">SICP 1.2 Lab</span><span>Process shapes, orders of growth, exercises 1.9–1.15</span></a></li>
+  </ol>
+</main>
+</body>
+</html>
